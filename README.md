@@ -1,16 +1,15 @@
 # Allgemein
 ### Ziel
 Entwickeln Sie das allerneuste, super-interessante, von alle gespielte DHBW-Kartenspiel in C, bei dem ein menschlicher Spieler gegen jeweils einen, aber mit verschiedenen Strategien ausgerüsteten, Computergegner antritt. Das Programm soll die Karten, die Spielzüge und die Auswertung am Ende darstellen, sowie den Namen des Spielers erfragen und darstellen.
-
-### Grundlegende Spielregeln
-- Es gibt ein Standarddeck mit 52 Karten: Werte 2–10, Bube (B), Dame (D), König (K), Ass (As), jeweils in den vier Farben ♠, ♥, ♦, ♣.
-- Reihenfolge der Karten: $2<3<4<5<6<7<8<9<10<B<D<K<A$
+- Reihenfolge der Karten: 2<3<4<5<6<7<8<9<10<B<D<K<A
 - Punktewertung:
 	- $2-10\to$ Kartenwert
 	- $B\to2$ Punkte
 	- $D\to3$ Punkte
 	- $K\to4$ Punkte
 	- $A\to11$ Punkte
+### Grundlegende Spielregeln
+- Es gibt ein Standarddeck mit 52 Karten: Werte 2–10, Bube (B), Dame (D), König (K), Ass (As), jeweils in den vier Farben ♠, ♥, ♦, ♣.
 - Farben spielen keine Rolle für die Stichentscheidung
 - Für passionierte Kartenspieler (Skat, Doppelkopf, Binokel, etc.): Es gibt auch keinen Trumpf oder Bedienzwang
 ### Spielablauf:
