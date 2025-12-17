@@ -7,17 +7,15 @@
 #include "card.h"
 
 typedef struct {
-    Card* data;     // dynamisches Array (52 Karten)
-    int   size;     // aktuelle Anzahl
-    int   capacity; // typ. 52
+    Card* data;
+    int   size;
+    int   capacity;
 } Deck;
 
-Deck* deck_create_standard(void);            // 52 geordnete Karten
-void  deck_free(Deck* d);
-
-void  deck_shuffle(Deck* d);                 // Fisher-Yates mit RNG-API
-int   deck_is_empty(const Deck* d);
-
-int   deck_draw_top(Deck* d, Card* out);     // LIFO-Top; returns 0 ok / -1 empty
-int   deck_draw_random(Deck* d, Card* out);  // zufällige Karte; 0/-1
+Deck* deck_create_standard(void);
+Deck* deck_create_empty(int initial_capacity);
+void deck_shuffle(Deck* d);
+int deck_is_empty(const Deck* d);
+int deck_draw_top(Deck* d, Card* out);
+int deck_insert(Deck* d, const Card* c);
 #endif
