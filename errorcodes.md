@@ -1,6 +1,6 @@
 # Errorcodes
 ## Zustandsfehler
-- -1: Deck leer
+- -1: Deck leer - deck.c/deck_draw_top
 ## Initialisierungs-/Nullfehler
 - -112: deck.c/deck_insert
 - -113: deck.c/deck_count_worth

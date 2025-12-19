@@ -5,17 +5,7 @@
 #include "player.h"
 //C-Level C11
 
-int main_test() {
-    Deck * deck = deck_create_standard();
-    Card c;
-
-    while (deck_draw_top(deck, &c) == 0) {
-        printf("%s/%c\n", rank_arr[c.rank], suit_arr[c.suit]);
-    }
-    return 0;
-}
-
-int main() {
+int game_start() {
     Deck* d = deck_create_standard();
     // Initialisiserung fehlgeschlagen
     if (!d)
@@ -92,5 +82,34 @@ int main() {
         printf("Spieler %d erzielte %d Punkte\n", p, points);
     }
 
+    return 0;
+}
+
+int main() {
+    int err;
+    if ((err = game_start()) != 0)
+        switch (err) {
+            case -1:
+                printf("Deck leer (%d)", err);
+                break;
+            case -112:
+            case -113:
+            case -114:
+            case -115:
+            case -116:
+            case -117:
+                printf("Initialisiserungserror: %d\n", err);
+                break;
+            case -361:
+                printf("Wachstum fehlgeschlagen (%d)", err);
+                break;
+            case -824:
+                printf("ungültige Kapazität für das Arraywachstum (%d)", err);
+                break;
+            case -825:
+                printf("ungültige Gegnerstrategie ausgewählt (%d)", err);
+                break;
+            default: return err;
+        }
     return 0;
 }

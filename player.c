@@ -24,7 +24,6 @@ int player_play_card(const gamer player, Card* played_card) {
                 return -1;
             }
             return 0;
-
         default: return -825;
     }
 }
