@@ -14,6 +14,10 @@
  * - 1: Angreifer gewinnt
  */
 int card_clash(const Card* a, const Card* b) {
-     // #TODO
-    return 0;
+    const int a_worth = a->rank;
+    const int b_worth = b->rank;
+
+    if (b_worth > a_worth)
+        return 0;
+    return 1;
 }

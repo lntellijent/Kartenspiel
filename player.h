@@ -12,5 +12,5 @@ typedef struct {
     int strategy;
 } gamer;
 
-int player_play_card(gamer player, Card* played_card);
+int player_play_card(const gamer player, Card* played_card);
 #endif

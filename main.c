@@ -32,40 +32,46 @@ int main() {
 
     Card c_att, c_def;
 
-    printf("%d\n", players[0].hand->size);
-
-    const int player_size = (int) (sizeof(players)/sizeof(players[0]));
-    const int rounds = hand_size * player_size;
+    const int player_size = sizeof(players)/sizeof(players[0]);
     int round = 0;
-    while (round++ < hand_size) {
-        printf("Zug %d\n", round);
-            // Attacker legt eine Karte
-            int err;
-            if ((err = player_play_card(players[round % 2], &c_att)) != 0) {
-                return err;
-            }
-            printf("Spieler %d legt %s%c\n", round % player_size, rank_arr[c_att.rank], suit_arr[c_att.suit]);
+    const int player_1 = round;
+    const int player_2 = round + 1;
+    while (round < hand_size * player_size) {
+        round += 2;
 
-            // Defender legt eine Karte
+        printf("Zug %d\n", round / player_size);
+        // Attacker legt eine Karte
+        int err;
+        if ((err = player_play_card(players[player_1], &c_att)) != 0) {
+            return err;
+        }
+        printf("Spieler %d legt %s%c\n", player_1, rank_arr[c_att.rank], suit_arr[c_att.suit]);
 
-            if (player_play_card(players[(round + 1) % player_size], &c_def) != 0) {
-                return -2;
-            }
-            printf("Spieler %d legt %s%c\n", (round + 1) % player_size, rank_arr[c_def.rank], suit_arr[c_def.suit]);
+        // Defender legt eine Karte
 
-            // Stich wird entschieden
-            switch (card_clash(&c_att, &c_def)) {
-                default:
-                    return -5;
-                case 0:
-                    deck_insert(players[(round + 1) % player_size].points, &c_att);
-                    deck_insert(players[(round + 1) % player_size].points, &c_def);
-                case 1:
-                    deck_insert(players[round % player_size].points, &c_att);
-                    deck_insert(players[(round + 1) % player_size].points, &c_def);
-            }
+        if (player_play_card(players[player_2], &c_def) != 0) {
+            return -2;
+        }
+        printf("Spieler %d legt %s%c\n", player_2, rank_arr[c_def.rank], suit_arr[c_def.suit]);
+
+        // Stich wird entschieden
+        switch (card_clash(&c_att, &c_def)) {
+            default:
+                return -5;
+            case 0:
+                deck_insert(players[player_2].points, &c_att);
+                deck_insert(players[player_2].points, &c_def);
+                printf("Spieler %d gewinnt\n", player_2);
+                break;
+            case 1:
+                deck_insert(players[player_1].points, &c_att);
+                deck_insert(players[player_1].points, &c_def);
+                printf("Spieler %d gewinnt\n", player_1);
+                break;
+        }
     }
 
+    printf("\n\n");
     for (int p = 0; p < player_size; p++) {
         printf("Spieler %d erzielte %d Punkte\n", p, deck_count_worth(players[p].points));
     }
