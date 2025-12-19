@@ -14,8 +14,10 @@ typedef struct {
 
 Deck* deck_create_standard(void);
 Deck* deck_create_empty(int initial_capacity);
-void deck_shuffle(Deck* d);
+void deck_shuffle(const Deck* d);
 int deck_is_empty(const Deck* d);
 int deck_draw_top(Deck* d, Card* out);
 int deck_insert(Deck* d, const Card* c);
+unsigned int deck_count_worth(Deck* d);
+int card_deal(Deck* stack, Deck* d, int count);
 #endif

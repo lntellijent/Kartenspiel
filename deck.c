@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 /**
- * @brief Setzt für jeden Durchgang einen neuen Seed für den Zufallsgenerator, welcher die Karten mischt
+ * @brief Setzt für jeden Durchgang einen neuen Seed für den Zufallsgenerator, welcher die Karten mischt.
  * @note Der Seed ist dabei der Timestamp des Erstellungszeitpunkts
  */
 static void ensure_rng_seeded(void) {
@@ -55,8 +55,8 @@ Deck* deck_create_standard(void) {
     int idx = 0;
     for (int si = 0; si < 4; ++si) {
         for (int r = (int)RANK_2; r <= (int)RANK_A; ++r) {
-            d->data[idx].suit = suits[si];
-            d->data[idx].rank = (Rank)r;
+            d->data[idx].suit = (Suit) si;
+            d->data[idx].rank = (Rank) r;
             ++idx;
         }
     }
@@ -64,9 +64,13 @@ Deck* deck_create_standard(void) {
     return d;
 }
 
-
+/**
+ * @brief Erstellt ein gültiges, aber leeres Deck
+ * @param initial_capacity Die Anzahl der freien Plätze, ohne, dass es erweitert werden muss
+ * @return das leere Deck
+ */
 Deck* deck_create_empty(int initial_capacity) {
-    if (initial_capacity <= 0) initial_capacity = 2; // sinnvolle Default-Kapazität
+    if (initial_capacity <= 0) initial_capacity = 0; // Standard-Kapazität falls ungültiger Wert eingegeben wird
 
     Deck* d = (Deck*)malloc(sizeof *d);
     if (!d) return NULL;
@@ -76,10 +80,8 @@ Deck* deck_create_empty(int initial_capacity) {
         free(d);
         return NULL;
     }
-
-
-    d->size = 0;                   // ✅ leer
-    d->capacity = initial_capacity; // ✅ gültige Kapazitä
+    d->size = 0;
+    d->capacity = initial_capacity;
 
     return d;
 }
@@ -98,7 +100,7 @@ void deck_free(Deck* d) {
  * @brief mischt das übergebene Deck
  * @param d das zu mischende Deck
  */
-void deck_shuffle(Deck* d) {
+void deck_shuffle(const Deck* d) {
     if (!d || d->size <= 1) return;
 
     ensure_rng_seeded();
@@ -123,14 +125,13 @@ int deck_is_empty(const Deck* d) {
  * @brief Zieht (virtuell) die oberste Karte (LIFO-Prinzip). Nur zufällig falls davor gemischt wurde.
  * @param d Das Deck aus welchem gezogen werden soll
  * @param out Die Karte die gezogen wird
- * @return 0, falls erfolgreich, -1 falls das Deck leer ist
+ * @return 0, falls erfolgreich, -1, falls das Deck leer ist
  */
 int deck_draw_top(Deck* d, Card* out) {
-    if (!d || deck_is_empty(d) || !out) return -1;
+    if (!d || deck_is_empty(d)) return -1;
 
     // Top ist das letzte Element (LIFO)
-    *out = d->data[d->size - 1];
-    d->size -= 1;
+    *out = d->data[--d->size];
     return 0;
 }
 
@@ -183,5 +184,46 @@ int deck_insert(Deck* d, const Card* c) {
     }
 
     d->data[d->size++] = *c;
+    return 0;
+}
+
+/**
+ * @brief Zählt den Punktewert des Decks
+ * @param d Das zu zählende Deck
+ * @return Fehler-/Statuscode:
+ * - Wert > -1: Fehlerfrei, enthält den entsprechenden Deck-Wert
+ * - -1: Fehler
+ * @warning Leert das Deck vollständig!
+ */
+unsigned int deck_count_worth(Deck* d) {
+    if (!d || d->size <= 0) return -1;
+    Card c;
+    unsigned int worth = 0;
+    while (deck_draw_top(d,&c) == 0) {
+        if (c.rank >= 2 && c.rank <= 10) {
+            worth += c.rank;
+            // Zahlen zählen gemäß ihren Augenzahlen
+        } else if (c.rank > 10 && c.rank < 14) {
+            worth += c.rank-9;
+            /* Offset = 9
+             * Bube => 11-9=2 Punkte in der Wertung (nicht vom Stichwert her)
+             * Dame => 12-9=3 Punkte
+             * König => 13-9=4 Punkte
+             */
+        } else if (c.rank == 14) {
+            worth += 11;
+            // Ass-Punktewert = 11
+        }
+    }
+    return worth;
+}
+
+int card_deal(Deck* stack, Deck* d, const int count) {
+    int i = 0;
+    Card c;
+    while (deck_draw_top(stack, &c) == 0 && i++ < count) {
+        //printf("input Karte: %s/%s\n", card_suit_str(c->suit), card_rank_str(c->rank));
+        deck_insert(d, &c);
+    }
     return 0;
 }
