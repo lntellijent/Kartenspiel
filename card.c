@@ -9,7 +9,6 @@
  * @param a Angreiferkarte
  * @param b Verteidigerkarte
  * @return
- * - -1: Fehler
  * - 0: Verteidiger gewinnt
  * - 1: Angreifer gewinnt
  */
