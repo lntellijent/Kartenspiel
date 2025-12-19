@@ -26,7 +26,7 @@ typedef struct {
 } Card;
 
 
-static const int suit_arr[SUIT_COUNT] = { 6, 5, 3, 4 };
+static const int suit_arr[SUIT_COUNT] = { 6,5,3,4 };
 static const char* rank_arr[RANK_COUNT] = {
     "_","_", "2","3","4","5","6","7","8","9","10","B","D","K","A"
 };

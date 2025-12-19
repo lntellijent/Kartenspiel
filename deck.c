@@ -129,10 +129,36 @@ int deck_is_empty(const Deck* d) {
  * @return 0, falls erfolgreich, -1, falls das Deck leer ist
  */
 int deck_draw_top(Deck* d, Card* out) {
-    if (!d || deck_is_empty(d)) return -1;
+    if (!d || deck_is_empty(d)) {
+        return -1;
+    }
 
     // Top ist das letzte Element (LIFO)
     *out = d->data[--d->size];
+    return 0;
+}
+
+/**
+ * @brief Zieht eine Karte aus einer bestimmten Stelle
+ * @param d Das Deck aus welchem gezogen werden soll
+ * @param out Die Karte die gezogen wird
+ * @param index Der Index an welchem die Karte abliegt
+ * @return Fehler-Statuscode
+ * - 0: Fehlerfrei
+ * - -1: Deck ist leer, nicht genug gefüllt oder nicht initialisiert
+ */
+int deck_draw_index(Deck* d, Card* out, const int index) {
+    if (!d || deck_is_empty(d)) {
+        return -1;
+    }
+
+    // Index herausnehmen
+    *out = d->data[index];
+    // Daten aufrucken
+    for (int i = index; i < d->size-1; i++) {
+        d->data[i] = d->data[i+1];
+    }
+    d->size--;
     return 0;
 }
 
@@ -143,11 +169,11 @@ int deck_draw_top(Deck* d, Card* out) {
  * Rückkehr verfügbar sein soll. Muss >= 0 sein.
  * @return Fehler-/Statuscode:
  * - 0  bei Erfolg (Kapazität war ausreichend oder wurde erfolgreich erhöht)
- * - -115: wenn `d == NULL` oder gewünschte Kapazität negativ
+ * - -112: wenn `d == NULL` oder gewünschte Kapazität negativ
  * - -361: Speichervergrößerung via `realloc` fehlgeschlagen ist
  */
 static int deck_ensure_capacity(Deck* d, const int min_capacity) {
-    if (!d) return -115;
+    if (!d) return -112;
     if (min_capacity <= 0) return -824;
     if (min_capacity <= d->capacity) return 0;
 
@@ -170,11 +196,11 @@ static int deck_ensure_capacity(Deck* d, const int min_capacity) {
  * @param c Die Karte die eingefügt wird
  * @return Fehler-/Statuscodes:
  * - 0: keine Fehler
- * - -114: Initialisierungsfehler
+ * - -112: Initialisierungsfehler
  * - -361: Wachstum fehlgeschlagen
  */
 int deck_insert(Deck* d, const Card* c) {
-    if (!d || !c || d->size < 0) return -114; // Initialisierungsfehler
+    if (!d || !c || d->size < 0) return -112; // Initialisierungsfehler
 
     // Kapazität sicherstellen
     int err;
@@ -191,11 +217,11 @@ int deck_insert(Deck* d, const Card* c) {
  * @param d Das zu zählende Deck
  * @return Fehler-/Statuscode:
  * - Wert >= 0: Fehlerfrei, enthält den entsprechenden Deck-Wert
- * - -113: Fehler
+ * - -112: Fehler
  * @warning Leert das Deck vollständig!
  */
 int deck_count_worth(Deck* d) {
-    if (!d || d->size <= 0) return -113;
+    if (!d || d->size <= 0) return -112;
     Card c;
     unsigned int worth = 0;
     while (deck_draw_top(d,&c) == 0) {
@@ -238,3 +264,4 @@ int card_deal(Deck* stack, Deck* d, const int count) {
     }
     return 0;
 }
+

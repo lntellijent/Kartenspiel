@@ -8,7 +8,7 @@
  * @brief Vergleicht beide Karten gemäß den Spielregeln und kürt eine dementsprechend zum Gewinner
  * @param a Angreiferkarte
  * @param b Verteidigerkarte
- * @return
+ * @return Status:
  * - 0: Verteidiger gewinnt
  * - 1: Angreifer gewinnt
  */

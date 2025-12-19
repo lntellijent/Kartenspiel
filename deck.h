@@ -17,6 +17,7 @@ Deck* deck_create_empty(int initial_capacity);
 int deck_shuffle(const Deck* d);
 int deck_is_empty(const Deck* d);
 int deck_draw_top(Deck* d, Card* out);
+int deck_draw_index(Deck* d, Card* out, int index);
 int deck_insert(Deck* d, const Card* c);
 int deck_count_worth(Deck* d);
 int card_deal(Deck* stack, Deck* d, int count);
