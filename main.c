@@ -33,6 +33,16 @@ status game_start() {
 
     if (deck_is_empty(players[0].hand) || deck_is_empty(players[1].hand)) return NULLPOINT_ERROR;
 
+    const char* banner =
+".---------.\t.---------.\t.---------.\t.---------.\n"
+"|         |\t|         |\t|         |\t|         |\n"
+"|         |\t|         |\t|         |\t|         |\n"
+"|         |\t|         |\t|         |\t|         |\n"
+"|         |\t|         |\t|         |\t|         |\n"
+"'---------'\t'---------'\t'---------'\t'---------'\n"
+"        Das Kartenspiel           \n";
+    printf("%s\n",banner);
+
     Card c_att, c_def;
     int att = 1, def = 0;
 
