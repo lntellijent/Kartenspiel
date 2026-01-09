@@ -25,11 +25,17 @@ typedef struct {
     Rank rank;
 } Card;
 
+typedef enum {
+    DEFENDER_WINS,
+    TIE,
+    ATTACKER_WINS
+} winner;
+
 
 static const int suit_arr[SUIT_COUNT] = { 6,5,3,4 };
 static const char* rank_arr[RANK_COUNT] = {
     "_","_", "2","3","4","5","6","7","8","9","10","B","D","K","A"
 };
    // "♠", "♥" ...
-int card_clash(const Card* a, const Card* b); // -1/0/+1 (optional)
+winner card_clash(const Card* a, const Card* b); // -1/0/+1 (optional)
 #endif

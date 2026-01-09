@@ -5,68 +5,65 @@
 
 #include <fcntl.h>
 #include <io.h>
+#include <stdlib.h>
 
 //C-Level C11
 
-int game_start() {
+status game_start() {
     Deck* d = deck_create_standard();
     // Initialisiserung fehlgeschlagen
-    if (!d)
-        return -112;
+    if (!d) return NULLPOINT_ERROR;
     deck_shuffle(d);
 
     // Spieler(-Decks) initialisieren
     const int hand_size = 10;
-    const gamer players[2] = {
+    const player players[2] = {
         {.hand = deck_create_empty(hand_size), .points = deck_create_empty(hand_size), .strategy = 0}, // Spieler
         {.hand = deck_create_empty(hand_size), .points = deck_create_empty(hand_size), .strategy = 1} // Gegner
     };
 
     // Initialisierung fehlgeschlagen
-    if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points)
-        return -112;
+    if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULLPOINT_ERROR;
 
     // Austeilen der Karten
     for (int p = 0; p < sizeof(players)/sizeof(players[0]); p++) {
-        int err;
-        if ((err = card_deal(d, players[p].hand, hand_size)) != 0)
-            return err;
+        status err;
+        if ((err = card_deal(d, players[p].hand, hand_size)) != OK) return err;
     }
+
+    if (deck_is_empty(players[0].hand) || deck_is_empty(players[1].hand)) return NULLPOINT_ERROR;
 
     Card c_att, c_def;
     int att = 1, def = 0;
 
     const int player_size = sizeof(players)/sizeof(players[0]);
     int round = 0;
-    while (round < hand_size * player_size - 1) {
-        printf("\033[2J\033[H");
+    while ( !(deck_is_empty(players[0].hand) && deck_is_empty(players[1].hand)) ) {
         round += 2;
         printf("Zug %d\n", round / player_size);
 
         /*
          * Attacker legt eine Karte
          */
-        int err;
-        if ((err = player_play_card(players[att], &c_att)) != 0)
+        status err;
+        if ((err = player_play_card(players[att], &c_att)) != OK)
             return err;
         printf("Spieler %d legt %s%c\n", att, rank_arr[c_att.rank], suit_arr[c_att.suit]);
 
         /*
          * Defender legt eine Karte
          */
-        if ((err = player_play_card(players[def], &c_def)) != 0)
+        if ((err = player_play_card(players[def], &c_def)) != OK)
             return err;
         printf("Spieler %d legt %s%c\n", def, rank_arr[c_def.rank], suit_arr[c_def.suit]);
 
         // Stich wird entschieden
         switch (card_clash(&c_att, &c_def)) {
             default:
-                return -5;
-            case 0:
-                if ((err = deck_insert(players[def].points, &c_att)) != 0)
-                    return err;
-                if ((err = deck_insert(players[def].points, &c_def)) != 0)
-                    return err;
+                return NULLPOINT_ERROR;
+            case DEFENDER_WINS:
+                if ((err = deck_insert(players[def].points, &c_att)) != OK) return err;
+                if ((err = deck_insert(players[def].points, &c_def)) != OK) return err;
                 printf("Spieler %d gewinnt\n", def);
 
                 // Angreifer-Verteidigerrolle wird getauscht
@@ -74,11 +71,10 @@ int game_start() {
                 att = def;
                 def = temp;
                 break;
-            case 1:
-                if((err = deck_insert(players[att].points, &c_att)) != 0)
-                    return err;
-                if ((err = deck_insert(players[att].points, &c_def)) != 0)
-                    return err;
+            case TIE: // Angreifer gewinnt ebenfalls, wenn die Gleiche Karte gelegt wurde
+            case ATTACKER_WINS:
+                if((err = deck_insert(players[att].points, &c_att)) != OK) return err;
+                if ((err = deck_insert(players[att].points, &c_def)) != OK) return err;
                 printf("Spieler %d gewinnt\n", att);
                 // Angreifer-Verteidigerrolle wird nicht getauscht
                 break;
@@ -87,13 +83,18 @@ int game_start() {
 
     printf("\n\n");
     for (int p = 0; p < player_size; p++) {
-        int points = deck_count_worth(players[p].points);
-        if (points == -113)
-            return -113;
+        const int points = deck_consume_and_count_worth(players[p].points);
+        if (points == -1) return NULLPOINT_ERROR;
         printf("Spieler %d erzielte %d Punkte (%d)\n", p, points, players[p].hand->size);
     }
 
-    return 0;
+    free(players[0].hand);
+    free(players[0].points);
+    free(players[1].hand);
+    free(players[1].points);
+    free(d);
+
+    return OK;
 }
 
 /**
@@ -106,23 +107,17 @@ int main() {
 
     wprintf(L"Pik: \u2660  Kreuz: \u2663  Herz: \u2665  Karo: \u2666\n");*/
 
-    int err = 0;
-    if ((err = game_start()) != 0)
+    status err;
+    if ((err = game_start()) != OK)
         switch (err) {
-            case -1:
-                printf("Deck leer (%d)", err);
+            case NULLPOINT_ERROR:
+                printf("Initialisierungsfehler (Nullpointerexception)\n");
                 break;
-            case -112:
-                printf("Initialisiserungserror: %d\n", err);
-                break;
-            case -361:
+            case CRITICAL_ERROR:
                 printf("Wachstum fehlgeschlagen (%d)", err);
                 break;
-            case -824:
-                printf("ungültige Kapazität für das Arraywachstum (%d)", err);
-                break;
-            case -825:
-                printf("ungültige Gegnerstrategie ausgewählt (%d)", err);
+            case USER_INPUT_ERROR:
+                printf("Eingabe konnte nicht verarbeitet werden");
                 break;
             default: return err;
         }

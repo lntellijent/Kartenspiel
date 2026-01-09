@@ -10,7 +10,7 @@ typedef struct {
     Deck *hand;
     Deck *points;
     int strategy;
-} gamer;
+} player;
 
-int player_play_card(gamer player, Card* played_card);
+status player_play_card(player player, Card* played_card);
 #endif

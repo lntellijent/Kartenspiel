@@ -14,28 +14,20 @@
  * @param player Der Spieler, welcher eine Karte spielen soll
  * @param played_card Entält die Karte die gespielt wird
  * @return Fehler-/Statuscodes:
- * - 0: Fehlerfrei
- * - -1: Deck ist leer
- * - -825: invalide Strategie ausgewählt
+ * - OK: Fehlerfrei
+ * - NULLPOINT_ERROR: Deck ist leer
+ * - USER_INPUT_ERROR: invalide Strategie ausgewählt
  * @note Strategien:
  * 1. Zufall
  * 2. niedrigste zuerst
  * 3. höchste zuerst
  * 4. Intelligent
  */
-int player_play_card(const gamer player, Card* played_card) {
+status player_play_card(const player player, Card* played_card) {
     switch (player.strategy) {
         case 0:
-            if (player.hand->size <=0)
-                return -1;
-
-            printf("Deine Karten:\n%5s","");
-            for (int i = 0 ; i < player.hand->size ; i++)
-                printf("%s%2s%c%s", i != 0 ? " " : "", rank_arr[player.hand->data[i].rank], suit_arr[player.hand->data[i].suit], i + 1 == player.hand->size ? ".\n" : "");
-            printf("%5s", "");
-            for (int i = 0 ; i < player.hand->size ; i++)
-                printf("%1s[%d]", "", i);
-            printf("\n");
+            if (player.hand->size <=0) return NULLPOINT_ERROR;
+            print_deck(player.hand, 1);
 
             if (player.hand->size > 1) {
                 char name[4];
@@ -47,20 +39,16 @@ int player_play_card(const gamer player, Card* played_card) {
                         chosen_card = input;
                 }
 
-                int err;
-                if ((err = deck_draw_index(player.hand, played_card, chosen_card)))
-                    return err;
+                status err;
+                if ((err = deck_draw_index(player.hand, played_card, chosen_card)) != OK) return err;
             } else {
                 int err;
-                if ((err = deck_draw_top(player.hand, played_card)))
-                    return err;
+                if ((err = deck_draw_top(player.hand, played_card)) != OK) return err;
             }
-            return 0;
+            return OK;
         case 1:
-            if (deck_draw_top(player.hand, played_card) != 0) {
-                return -1;
-            }
-            return 0;
-        default: return -825;
+            if (deck_draw_top(player.hand, played_card) != OK) return NULLPOINT_ERROR;
+            return OK;
+        default: return USER_INPUT_ERROR;
     }
 }

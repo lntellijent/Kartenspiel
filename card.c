@@ -9,14 +9,15 @@
  * @param a Angreiferkarte
  * @param b Verteidigerkarte
  * @return Status:
- * - 0: Verteidiger gewinnt
- * - 1: Angreifer gewinnt
+ * - DEFENDER_WINS: Verteidiger gewinnt
+ * - ATTACKER_WINS: Angreifer gewinnt
+ * - TIE: Gleichstand, Angreifer gewinnt
  */
-int card_clash(const Card* a, const Card* b) {
+winner card_clash(const Card* a, const Card* b) {
     const int a_worth = a->rank;
     const int b_worth = b->rank;
 
-    if (b_worth > a_worth)
-        return 0;
-    return 1;
+    if (b_worth > a_worth) return DEFENDER_WINS;
+    if (b_worth < a_worth) return ATTACKER_WINS;
+    return TIE;
 }
