@@ -32,10 +32,11 @@ typedef enum {
 } winner;
 
 
-static const int suit_arr[SUIT_COUNT] = { 6,5,3,4 };
-static const char* rank_arr[RANK_COUNT] = {
+static const char* suits[SUIT_COUNT] = {"s", "c", "h", "d"};
+//static const char* suits[SUIT_COUNT] = {"♠", "♣", "♥", "♦"};
+static const char* ranks[RANK_COUNT] = {
     "_","_", "2","3","4","5","6","7","8","9","10","B","D","K","A"
 };
    // "♠", "♥" ...
-winner card_clash(const Card* a, const Card* b); // -1/0/+1 (optional)
+winner card_clash(const Card* attacker_card, const Card* defender_card);
 #endif

@@ -8,19 +8,19 @@
 #include "main.h"
 
 typedef struct {
-    Card* data;
-    int   size;
+    Card* cards;
+    int   card_count;
     int   capacity;
 } Deck;
 
-Deck* deck_create_standard(void);
-Deck* deck_create_empty(int initial_capacity);
-status deck_shuffle(const Deck* d);
-boolean deck_is_empty(const Deck* d);
+Deck* create_standard_deck(void);
+Deck* create_empty_deck(int initial_capacity);
+status shuffle(const Deck* d);
+boolean is_empty(const Deck* d);
 status deck_draw_top(Deck* d, Card* out);
-status deck_draw_index(Deck* d, Card* out, int index);
-status deck_insert(Deck* d, const Card* c);
-int deck_consume_and_count_worth(Deck* d);
-status card_deal(Deck* stack, Deck* d, int count);
-status print_deck(Deck* d,int print_indexes);
+status deck_draw_index(Deck* source_deck, Card* out, int index);
+status insert(Deck* source_deck, const Card* card_output);
+int consume_and_count_worth(Deck* source_deck);
+status card_deal(Deck* main_deck, Deck* destination_deck, int card_count);
+status print_deck(Deck* source_deck,boolean print_indexes);
 #endif

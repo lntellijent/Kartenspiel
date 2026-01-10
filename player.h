@@ -12,5 +12,5 @@ typedef struct {
     int strategy;
 } player;
 
-status player_play_card(player player, Card* played_card);
+status player_play_card(player player, Card *played_card);
 #endif

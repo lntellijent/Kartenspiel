@@ -14,8 +14,9 @@ typedef enum {
     OK, // Erfolgreich bzw ohne Fehler
     USER_INPUT_ERROR, // falsche Benutzereingabe
     OUT_OF_RANGE_ERROR, // Index nicht in Array vorhanden
-    NULLPOINT_ERROR, // Deck leer, Initialisierungsfehler, etc.
+    NULL_POINT_ERROR, // Deck leer, Initialisierungsfehler, etc.
     CRITICAL_ERROR, // Kritische Errors
+    INVALID_ARGUMENT, // Ein Argument im Code ist in diesem Zustand nicht brauchbar
     PRINT_ERROR // print-Statement fehlgeschlagen
 } status;
 

@@ -1,110 +1,234 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h> // nur für strlen genutzt
+
 #include "card.h"
 #include "deck.h"
 #include "player.h"
 
-#include <fcntl.h>
-#include <io.h>
-#include <stdlib.h>
+#define DEFAULT_GAME_REPEAT_SETTING FALSE
+#define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
 
 //C-Level C11
 
+/**
+ * #ToDo
+ * @brief Dient als Platzhalter für CLI-Nachrichten am Start des Spiels.
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
+ */
+status start_sequence() {
+    const char *banner =
+            ".---------.\t.---------.\t.---------.\t.---------.\n"
+            "|         |\t|         |\t|         |\t|         |\n"
+            "|         |\t|         |\t|         |\t|         |\n"
+            "|         |\t|         |\t|         |\t|         |\n"
+            "|         |\t|         |\t|         |\t|         |\n"
+            "'---------'\t'---------'\t'---------'\t'---------'\n"
+            "                      Das Kartenspiel             \n";
+    if (printf("\n%s\n\n", banner) < 0) return PRINT_ERROR;
+    return OK;
+}
+
+/**
+ * #ToDo
+ * @brief Dient als Platzhalter für CLI-Nachrichten für den Anfang einer Runde.
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
+ */
+status round_sequence(const int round) {
+    if (printf("Zug %d\n", round) < 0) return PRINT_ERROR;
+    return OK;
+}
+
+/**
+ * #ToDo
+ * @brief Dient als Platzhalter für CLI-Nachrichten, wenn eine Karte gespielt wird.
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
+ */
+status card_played(const int player_index, const Card *card, const boolean newline) {
+    if (printf("Spieler %d legt %s%s", player_index, ranks[card->rank], suits[card->suit]) < 0)
+        return PRINT_ERROR;
+    if (newline) printf("\n");
+    return OK;
+}
+
+/**
+ * #ToDo
+ * @brief Dient als Platzhalter für CLI-Nachrichten
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
+ */
+status clash_decided(const int player_index) {
+    if (printf("Spieler %d gewinnt\n", player_index) < 0) return PRINT_ERROR;
+
+    return OK;
+}
+
+/**
+ * #ToDo
+ * @brief Dient als Platzhalter für CLI-Nachrichten am Ende des Spiels.
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
+ */
+status game_winner(const int winning_player, const int winning_player_points) {
+    if (printf("Spieler %d gewinnt mit %d Punkten!\n", winning_player, winning_player_points) < 0) return PRINT_ERROR;
+    return OK;
+}
+
 status game_start() {
-    Deck* d = deck_create_standard();
+    status error;
+    Deck *main_deck = create_standard_deck();
     // Initialisiserung fehlgeschlagen
-    if (!d) return NULLPOINT_ERROR;
-    deck_shuffle(d);
+    if (!main_deck) return NULL_POINT_ERROR;
+    shuffle(main_deck);
 
     // Spieler(-Decks) initialisieren
     const int hand_size = 10;
     const player players[2] = {
-        {.hand = deck_create_empty(hand_size), .points = deck_create_empty(hand_size), .strategy = 0}, // Spieler
-        {.hand = deck_create_empty(hand_size), .points = deck_create_empty(hand_size), .strategy = 1} // Gegner
+        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 0}, // Spieler
+        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 1} // Gegner
     };
 
     // Initialisierung fehlgeschlagen
-    if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULLPOINT_ERROR;
+    if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULL_POINT_ERROR;
 
     // Austeilen der Karten
-    for (int p = 0; p < sizeof(players)/sizeof(players[0]); p++) {
-        status err;
-        if ((err = card_deal(d, players[p].hand, hand_size)) != OK) return err;
-    }
+    for (int p = 0; p < sizeof(players) / sizeof(players[0]); p++)
+        if ((error = card_deal(main_deck, players[p].hand, hand_size)) != OK) return error;
 
-    if (deck_is_empty(players[0].hand) || deck_is_empty(players[1].hand)) return NULLPOINT_ERROR;
+    if (is_empty(players[0].hand) || is_empty(players[1].hand)) return NULL_POINT_ERROR;
 
-    const char* banner =
-".---------.\t.---------.\t.---------.\t.---------.\n"
-"|         |\t|         |\t|         |\t|         |\n"
-"|         |\t|         |\t|         |\t|         |\n"
-"|         |\t|         |\t|         |\t|         |\n"
-"|         |\t|         |\t|         |\t|         |\n"
-"'---------'\t'---------'\t'---------'\t'---------'\n"
-"        Das Kartenspiel           \n";
-    printf("%s\n",banner);
+    // Start-Sequenz des Spiels
+    if ((error = start_sequence()) != OK) return error;
 
-    Card c_att, c_def;
-    int att = 1, def = 0;
+    Card attacker_card, defender_card;
+    int attacker_index = 1, defender_index = 0;
 
-    const int player_size = sizeof(players)/sizeof(players[0]);
-    int round = 0;
-    while ( !(deck_is_empty(players[0].hand) && deck_is_empty(players[1].hand)) ) {
-        round += 2;
-        printf("Zug %d\n", round / player_size);
+    const int player_size = sizeof(players) / sizeof(players[0]);
+    int round_x_turn = 0;
+    while (!(is_empty(players[0].hand) && is_empty(players[1].hand))) {
+        round_x_turn += 2;
 
-        /*
-         * Attacker legt eine Karte
-         */
-        status err;
-        if ((err = player_play_card(players[att], &c_att)) != OK)
-            return err;
-        printf("Spieler %d legt %s%c\n", att, rank_arr[c_att.rank], suit_arr[c_att.suit]);
+        // Runden-Sequenz des Spiels
+        if ((error = round_sequence(round_x_turn / 2)) != OK) return error;
 
-        /*
-         * Defender legt eine Karte
-         */
-        if ((err = player_play_card(players[def], &c_def)) != OK)
-            return err;
-        printf("Spieler %d legt %s%c\n", def, rank_arr[c_def.rank], suit_arr[c_def.suit]);
+        // Angreifer legt eine Karte
+        if ((error = player_play_card(players[attacker_index], &attacker_card)) != OK) return error;
+        if ((error = card_played(attacker_index, &attacker_card, FALSE)) != OK) return error;
+
+        // Verteidiger legt eine Karte
+        if ((error = player_play_card(players[defender_index], &defender_card)) != OK) return error;
+        if ((error = card_played(defender_index, &defender_card, FALSE)) != OK) return error;
+
 
         // Stich wird entschieden
-        switch (card_clash(&c_att, &c_def)) {
-            default:
-                return NULLPOINT_ERROR;
+        switch (card_clash(&attacker_card, &defender_card)) {
+            default: return NULL_POINT_ERROR;
             case DEFENDER_WINS:
-                if ((err = deck_insert(players[def].points, &c_att)) != OK) return err;
-                if ((err = deck_insert(players[def].points, &c_def)) != OK) return err;
-                printf("Spieler %d gewinnt\n", def);
-
+                if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;
+                if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
+                if ((error = clash_decided(defender_index)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird getauscht
-                const int temp = att;
-                att = def;
-                def = temp;
+                const int temp = attacker_index;
+                attacker_index = defender_index;
+                defender_index = temp;
                 break;
             case TIE: // Angreifer gewinnt ebenfalls, wenn die Gleiche Karte gelegt wurde
             case ATTACKER_WINS:
-                if((err = deck_insert(players[att].points, &c_att)) != OK) return err;
-                if ((err = deck_insert(players[att].points, &c_def)) != OK) return err;
-                printf("Spieler %d gewinnt\n", att);
+                if ((error = insert(players[attacker_index].points, &attacker_card)) != OK) return error;
+                if ((error = insert(players[attacker_index].points, &defender_card)) != OK) return error;
+                if ((error = clash_decided(attacker_index)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird nicht getauscht
                 break;
         }
     }
 
-    printf("\n\n");
+    int winning_player_index = 0, winning_player_points = 0;
+    if (printf("\n\n") < 0) return PRINT_ERROR;
     for (int p = 0; p < player_size; p++) {
-        const int points = deck_consume_and_count_worth(players[p].points);
-        if (points == -1) return NULLPOINT_ERROR;
-        printf("Spieler %d erzielte %d Punkte (%d)\n", p, points, players[p].hand->size);
+        const int points = consume_and_count_worth(players[p].points);
+        if (points == -1) return NULL_POINT_ERROR;
+        if (winning_player_points < points) {
+            winning_player_index = p;
+            winning_player_points = points;
+        }
     }
 
+    if ((error = game_winner(winning_player_index, winning_player_points)) != OK) return error;
+
+    // Speicher freigeben
+    free(players[0].hand->cards);
     free(players[0].hand);
+    free(players[0].points->cards);
     free(players[0].points);
+    free(players[1].hand->cards);
     free(players[1].hand);
+    free(players[1].points->cards);
     free(players[1].points);
-    free(d);
+    free(main_deck->cards);
+    free(main_deck);
 
     return OK;
+}
+
+/**
+ * @brief Entfernt führende und nachfolgende Leerzeichen aus einem String
+ * @param s den zu trimmenden String
+ */
+static void trim(char *s) {
+    while (*s && isspace((unsigned char) *s)) s++; // führende
+    if (*s == '\0') {
+        s[0] = '\0';
+        return;
+    } // nur Spaces
+    char *end = s + strlen(s) - 1;
+    while (end > s && isspace((unsigned char) *end)) end--; // nachfolgende
+    *(end + 1) = '\0';
+}
+
+static status read_line(char *buf, const size_t size) {
+    if (fgets(buf, (int) size, stdin) == NULL) return CRITICAL_ERROR;
+    // Entferne das abschließende \n
+    const size_t len = strlen(buf);
+    if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
+    return OK;
+}
+
+/**
+ * @brief Zeigt einen Prompt und akzeptiert 'j' für Ja oder 'n' für Nein.
+ * @return TRUE oder FALSE, für Ja oder Nein
+ * @note Fragt wiederholt nach, bis eine gültige Eingabe erfolgt.
+ */
+boolean ask_yes_no() {
+    char line[128];
+
+    for (;;) {
+        printf("Noch ein mal Spielen? [j/n]: ");
+        fflush(stdout);
+
+        // Defensiv als nein gewertet
+        if (read_line(line, sizeof(line)) != OK) return DEFAULT_GAME_REPEAT_SETTING;
+
+        trim(line);
+
+        // Standardverhalten für direktes Enter drücken
+        if (line[0] == '\0') return DEFAULT_GAME_REPEAT_ON_ENTER_SETTING;
+
+        // Nur erstes Zeichen auswerten
+        const unsigned char c = (unsigned char) tolower((unsigned char) line[0]);
+        if (c == 'j') return TRUE; // Ja
+        if (c == 'n') return FALSE; // Nein
+        if (c != 'n' && c != 'j')
+            printf("Ungültige Eingabe: '%c'. Bitte 'j'/'y' für ja oder 'n' für nein.\n", line[0]);
+    }
 }
 
 /**
@@ -112,24 +236,26 @@ status game_start() {
  * @return Errorcode; bei fehlerfreier Ausführung = 0
  */
 int main() {
-
-    /*_setmode(_fileno(stdout), _O_U16TEXT);
-
-    wprintf(L"Pik: \u2660  Kreuz: \u2663  Herz: \u2665  Karo: \u2666\n");*/
-
-    status err;
-    if ((err = game_start()) != OK)
-        switch (err) {
-            case NULLPOINT_ERROR:
-                printf("Initialisierungsfehler (Nullpointerexception)\n");
-                break;
-            case CRITICAL_ERROR:
-                printf("Wachstum fehlgeschlagen (%d)", err);
-                break;
-            case USER_INPUT_ERROR:
-                printf("Eingabe konnte nicht verarbeitet werden");
-                break;
-            default: return err;
-        }
-    return err;
+    boolean repeat = TRUE;
+    while (repeat) {
+        status error;
+        if ((error = game_start()) != OK)
+            switch (error) {
+                case NULL_POINT_ERROR:
+                    if (printf("Initialisierungsfehler\n") < 0) return PRINT_ERROR;
+                    break;
+                case CRITICAL_ERROR:
+                    if (printf("Wachstum fehlgeschlagen") < 0) return PRINT_ERROR;
+                    break;
+                case USER_INPUT_ERROR:
+                    if (printf("Eingabe konnte nicht verarbeitet werden") < 0) return PRINT_ERROR;
+                    break;
+                case PRINT_ERROR:
+                    if (printf("Darstellung fehlgeschlagen") < 0) return PRINT_ERROR;
+                    break;
+                default: return error;
+            }
+        if (!ask_yes_no()) repeat = FALSE;
+    }
+    return OK;
 }

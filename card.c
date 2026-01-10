@@ -6,18 +6,18 @@
 
 /**
  * @brief Vergleicht beide Karten gemäß den Spielregeln und kürt eine dementsprechend zum Gewinner
- * @param a Angreiferkarte
- * @param b Verteidigerkarte
+ * @param attacker_card Angreiferkarte
+ * @param defender_card Verteidigerkarte
  * @return Status:
  * - DEFENDER_WINS: Verteidiger gewinnt
  * - ATTACKER_WINS: Angreifer gewinnt
  * - TIE: Gleichstand, Angreifer gewinnt
  */
-winner card_clash(const Card* a, const Card* b) {
-    const int a_worth = a->rank;
-    const int b_worth = b->rank;
+winner card_clash(const Card *attacker_card, const Card *defender_card) {
+    const int attacker_card_worth = attacker_card->rank;
+    const int defender_card_worth = defender_card->rank;
 
-    if (b_worth > a_worth) return DEFENDER_WINS;
-    if (b_worth < a_worth) return ATTACKER_WINS;
+    if (defender_card_worth > attacker_card_worth) return DEFENDER_WINS;
+    if (defender_card_worth < attacker_card_worth) return ATTACKER_WINS;
     return TIE;
 }
