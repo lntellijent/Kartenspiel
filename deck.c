@@ -274,18 +274,18 @@ status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) 
  */
 status print_deck(Deck *source_deck, const boolean print_indexes) {
     if (!source_deck || source_deck->card_count <= 0) return NULL_POINT_ERROR;
-    if (printf("Deine Karten:\n%5s", "") < 0) return PRINT_ERROR;
+    if (wprintf(L"Deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
 
     for (int i = 0; i < source_deck->card_count; i++)
-        if (printf("%s%2s%s%s", i != 0 ? " " : "", ranks[source_deck->cards[i].rank], suits[source_deck->cards[i].suit],
+        if (wprintf(L"%hs%2hs%.1ls%hs", i != 0 ? " " : "", ranks[source_deck->cards[i].rank], &suits[source_deck->cards[i].suit],
                    i + 1 == source_deck->card_count ? ".\n" : "") < 0)
             return PRINT_ERROR;
-    if (printf("%5s", "") < 0) return PRINT_ERROR;
+    if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
     if (print_indexes) {
         for (int i = 0; i < source_deck->card_count; i++)
-            if (printf("%1s[%d]", "", i) < 0) return PRINT_ERROR;
-        if (printf("\n") < 0) return PRINT_ERROR;
+            if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
+        if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
     return OK;
 }

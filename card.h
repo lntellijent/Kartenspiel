@@ -4,6 +4,7 @@
 
 #ifndef CARD_H
 #define CARD_H
+#include <wchar.h>
 
 typedef enum {
     SUIT_SPADES, // ♠
@@ -32,11 +33,10 @@ typedef enum {
 } winner;
 
 
-static const char* suits[SUIT_COUNT] = {"s", "c", "h", "d"};
-//static const char* suits[SUIT_COUNT] = {"♠", "♣", "♥", "♦"};
-static const char* ranks[RANK_COUNT] = {
-    "_","_", "2","3","4","5","6","7","8","9","10","B","D","K","A"
+static const wchar_t *suits = L"♠♣♥♦";
+static const char *ranks[RANK_COUNT] = {
+    "_", "_", "2", "3", "4", "5", "6", "7", "8", "9", "10", "B", "D", "K", "A"
 };
-   // "♠", "♥" ...
-winner card_clash(const Card* attacker_card, const Card* defender_card);
+
+winner card_clash(const Card *attacker_card, const Card *defender_card);
 #endif

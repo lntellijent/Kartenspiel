@@ -15,27 +15,10 @@
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status invalid_user_response() {
-    if (printf("Diese Eingabe ist ungültig, bitte probiere es erneut: ") < 0) return PRINT_ERROR;
+    if (wprintf(L"Diese Eingabe ist ungültig, bitte probiere es erneut: ") < 0) return PRINT_ERROR;
     return OK;
 }
 
-/**
- * @brief Spielt eine Karte
- *
- * (Unabhängig davon ob KI-Gegner oder menschlicher Spieler)
- * @param player Der Spieler, welcher eine Karte spielen soll
- * @param played_card Entält die Karte die gespielt wird
- * @return Fehler-/Statuscodes:
- * - OK: Fehlerfrei
- * - NULLPOINT_ERROR: Deck ist leer oder =NULL
- * - USER_INPUT_ERROR: invalide Strategie ausgewählt
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- * @note Strategien:
- * 1. Zufall
- * 2. niedrigste zuerst
- * 3. höchste zuerst
- * 4. Intelligent
- */
 status player_play_card(const player player, Card *played_card) {
     status error;
     switch (player.strategy) {
@@ -63,12 +46,32 @@ status player_play_card(const player player, Card *played_card) {
         case 1:
             if ((error = deck_draw_top(player.hand, played_card)) != OK) return error;
             return OK;
-        case 2: // #ToDo
+        case 2: // #ToDo Spielt von der höchsten zur niedrigsten Karte
+            if ((error = get_strategic_card(player.hand, played_card)) != OK) return error;
             return OK;
-        case 3: // #ToDo
+        case 3: // #ToDo Spielt abwechselnd höchste und niedrigste Karte
+            if ((error = get_alternating_card(player.hand, played_card)) != OK) return error;
             return OK;
-        case 4: // #ToDo
+        case 4: // #ToDo Versucht zu gewinnen, spielt andernfalls die niedrigste Karte
+            if ((error = get_intelligent_card(player.hand, played_card)) != OK) return error;
             return OK;
         default: return USER_INPUT_ERROR;
     }
+}
+
+status get_strategic_card(Deck *deck, Card *lowest_card) {
+    status error;
+    Card lowest_card_card;
+    for (int card_index = 0; card_index < deck->card_count; card_index++) {
+    }
+    return OK;
+}
+
+status get_alternating_card(Deck *deck, Card *highest_card) {
+    static boolean lower_card = FALSE;
+    return OK;
+}
+
+status get_intelligent_card(Deck *deck, Card *intelligent_card) {
+    return OK;
 }

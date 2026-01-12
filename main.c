@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <locale.h>
+#include <fcntl.h>
+#include <io.h>
 #include <string.h> // nur für strlen genutzt
 
 #include "card.h"
@@ -28,7 +31,7 @@ status start_sequence() {
             "|         |\t|         |\t|         |\t|         |\n"
             "'---------'\t'---------'\t'---------'\t'---------'\n"
             "                      Das Kartenspiel             \n";
-    if (printf("\n%s\n\n", banner) < 0) return PRINT_ERROR;
+    if (wprintf(L"\n%hs\n\n", banner) < 0) return PRINT_ERROR;
     return OK;
 }
 
@@ -40,7 +43,7 @@ status start_sequence() {
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status round_sequence(const int round) {
-    if (printf("Zug %d\n", round) < 0) return PRINT_ERROR;
+    if (wprintf(L"Zug %d\n", round) < 0) return PRINT_ERROR;
     return OK;
 }
 
@@ -52,9 +55,9 @@ status round_sequence(const int round) {
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status card_played(const int player_index, const Card *card, const boolean newline) {
-    if (printf("Spieler %d legt %s%s", player_index, ranks[card->rank], suits[card->suit]) < 0)
+    if (wprintf(L"Spieler %d legt %hs%.1ls", player_index, ranks[card->rank], &suits[card->suit]) < 0)
         return PRINT_ERROR;
-    if (newline) printf("\n");
+    if (newline) wprintf(L"\n");
     return OK;
 }
 
@@ -66,7 +69,7 @@ status card_played(const int player_index, const Card *card, const boolean newli
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status clash_decided(const int player_index) {
-    if (printf("Spieler %d gewinnt\n", player_index) < 0) return PRINT_ERROR;
+    if (wprintf(L"Spieler %d gewinnt\n", player_index) < 0) return PRINT_ERROR;
 
     return OK;
 }
@@ -79,7 +82,7 @@ status clash_decided(const int player_index) {
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status game_winner(const int winning_player, const int winning_player_points) {
-    if (printf("Spieler %d gewinnt mit %d Punkten!\n", winning_player, winning_player_points) < 0) return PRINT_ERROR;
+    if (wprintf(L"Spieler %d gewinnt mit %d Punkten!\n", winning_player, winning_player_points) < 0) return PRINT_ERROR;
     return OK;
 }
 
@@ -87,8 +90,7 @@ status game_start() {
     status error;
     Deck *main_deck = create_standard_deck();
     // Initialisiserung fehlgeschlagen
-    if (!main_deck) return NULL_POINT_ERROR;
-    shuffle(main_deck);
+    if ((error = shuffle(main_deck)) != OK) return error;
 
     // Spieler(-Decks) initialisieren
     const int hand_size = 10;
@@ -152,7 +154,7 @@ status game_start() {
     }
 
     int winning_player_index = 0, winning_player_points = 0;
-    if (printf("\n\n") < 0) return PRINT_ERROR;
+    if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
     for (int p = 0; p < player_size; p++) {
         const int points = consume_and_count_worth(players[p].points);
         if (points == -1) return NULL_POINT_ERROR;
@@ -211,7 +213,7 @@ boolean ask_yes_no() {
     char line[128];
 
     for (;;) {
-        printf("Noch ein mal Spielen? [j/n]: ");
+        wprintf(L"Noch ein mal Spielen? [j/n]: ");
         fflush(stdout);
 
         // Defensiv als nein gewertet
@@ -227,35 +229,41 @@ boolean ask_yes_no() {
         if (c == 'j') return TRUE; // Ja
         if (c == 'n') return FALSE; // Nein
         if (c != 'n' && c != 'j')
-            printf("Ungültige Eingabe: '%c'. Bitte 'j'/'y' für ja oder 'n' für nein.\n", line[0]);
+            wprintf(L"Ungültige Eingabe: '%c'. Bitte 'j'/'y' für ja oder 'n' für nein.\n", line[0]);
     }
 }
 
+
 /**
  * @brief Startet das Programm und behandelt errors
- * @return Errorcode; bei fehlerfreier Ausführung = 0
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - andere Codes: Fehler
  */
 int main() {
+    setlocale(LC_ALL, "");
+    _setmode(_fileno(stdout), _O_U8TEXT);
+
     boolean repeat = TRUE;
+    status error = OK;
     while (repeat) {
-        status error;
         if ((error = game_start()) != OK)
             switch (error) {
-                case NULL_POINT_ERROR:
-                    if (printf("Initialisierungsfehler\n") < 0) return PRINT_ERROR;
+            case NULL_POINT_ERROR:
+                    if (wprintf(L"Initialisierungsfehler\n") < 0) return PRINT_ERROR;
                     break;
-                case CRITICAL_ERROR:
-                    if (printf("Wachstum fehlgeschlagen") < 0) return PRINT_ERROR;
+            case CRITICAL_ERROR:
+                    if (wprintf(L"Wachstum fehlgeschlagen") < 0) return PRINT_ERROR;
                     break;
-                case USER_INPUT_ERROR:
-                    if (printf("Eingabe konnte nicht verarbeitet werden") < 0) return PRINT_ERROR;
+            case USER_INPUT_ERROR:
+                    if (wprintf(L"Eingabe konnte nicht verarbeitet werden") < 0) return PRINT_ERROR;
                     break;
-                case PRINT_ERROR:
-                    if (printf("Darstellung fehlgeschlagen") < 0) return PRINT_ERROR;
+            case PRINT_ERROR:
+                    if (wprintf(L"Darstellung fehlgeschlagen") < 0) return PRINT_ERROR;
                     break;
-                default: return error;
+            default: return error;
             }
         if (!ask_yes_no()) repeat = FALSE;
     }
-    return OK;
+    return error;
 }
