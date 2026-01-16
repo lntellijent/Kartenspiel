@@ -47,7 +47,8 @@ status player_play_card(const player player, Card *played_card) {
             if ((error = deck_draw_top(player.hand, played_card)) != OK) return error;
             return OK;
         case 2: // #ToDo Spielt von der höchsten zur niedrigsten Karte
-            if ((error = get_strategic_card(player.hand, played_card)) != OK) return error;
+            print_deck(player.hand, FALSE);
+            if ((error =  deal_lowest_card(player.hand, played_card)) != OK) return error;
             return OK;
         case 3: // #ToDo Spielt abwechselnd höchste und niedrigste Karte
             if ((error = get_alternating_card(player.hand, played_card)) != OK) return error;
@@ -57,14 +58,6 @@ status player_play_card(const player player, Card *played_card) {
             return OK;
         default: return USER_INPUT_ERROR;
     }
-}
-
-status get_strategic_card(Deck *deck, Card *lowest_card) {
-    status error;
-    Card lowest_card_card;
-    for (int card_index = 0; card_index < deck->card_count; card_index++) {
-    }
-    return OK;
 }
 
 status get_alternating_card(Deck *deck, Card *highest_card) {

@@ -72,10 +72,6 @@ static status deck_ensure_capacity(Deck *source_deck, const int min_capacity) {
     return OK;
 }
 
-/**
- * @brief erzeugt einen Kartenstapel mit dem weitergearbeitet werden kann
- * @return Ein sortiertes Standard-Deck, falls ein Fehler auftritt: NULL
- */
 Deck *create_standard_deck(void) {
     // 52 Karten: (2..A) × (♠, ♣, ♥, ♦)
     Deck *deck = (Deck *) malloc(sizeof(Deck));
@@ -102,11 +98,6 @@ Deck *create_standard_deck(void) {
     return deck;
 }
 
-/**
- * @brief Erstellt ein gültiges, aber leeres Deck
- * @param initial_capacity Die Anzahl der freien Plätze, ohne, dass es erweitert werden muss
- * @return das leere Deck, falls ein Fehler auftritt: NULL
- */
 Deck *create_empty_deck(int initial_capacity) {
     if (initial_capacity <= 0) initial_capacity = 10; // Standard-Kapazität, falls ungültiger Wert eingegeben wird
 
@@ -124,13 +115,6 @@ Deck *create_empty_deck(int initial_capacity) {
     return d;
 }
 
-/**
- * @brief mischt das übergebene Deck
- * @param d das zu mischende Deck
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - NULL_POINTER_ERROR: Deck nicht initialisiert
- */
 status shuffle(const Deck *d) {
     if (!d || d->card_count <= 1) return NULL_POINT_ERROR;
 
@@ -144,23 +128,10 @@ status shuffle(const Deck *d) {
     return OK;
 }
 
-/**
- * @brief Prüft, ob das übergebene Deck leer ist oder noch Elemente enthält
- * @param d das zu überprüfende Deck
- * @return TRUE, falls das Deck entweder leer oder null ist, sonst FALSE
- */
 boolean is_empty(const Deck *d) {
     return (!d || d->card_count == 0) == 0 ? FALSE : TRUE;
 }
 
-/**
- * @brief Zieht (virtuell) die oberste Karte (LIFO-Prinzip). Nur zufällig, falls davor gemischt wurde.
- * @param d Das Deck aus welchem gezogen werden soll
- * @param out Die Karte die gezogen wird
- * @return Statuscode:
- * - OK: Erfolgreich
- * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
- */
 status deck_draw_top(Deck *d, Card *out) {
     if (!d || is_empty(d)) return NULL_POINT_ERROR;
     // Top ist das letzte Element (LIFO)
@@ -168,15 +139,6 @@ status deck_draw_top(Deck *d, Card *out) {
     return OK;
 }
 
-/**
- * @brief Zieht eine Karte aus einer bestimmten Stelle
- * @param source_deck Das Deck aus welchem gezogen werden soll
- * @param out Die Karte die gezogen wird
- * @param index Der Index an welchem die Karte abliegt
- * @return Statuscode:
- * - OK: Erfolgreich
- * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
- */
 status deck_draw_index(Deck *source_deck, Card *out, const int index) {
     if (!source_deck || is_empty(source_deck)) return NULL_POINT_ERROR;
     if (index >= source_deck->card_count) return NULL_POINT_ERROR;
@@ -190,16 +152,6 @@ status deck_draw_index(Deck *source_deck, Card *out, const int index) {
     return OK;
 }
 
-
-/**
- * @brief fügt eine Karte dem Deck hinzu
- * @param source_deck Das Deck, welchem die Karte hinzugefügt werden soll
- * @param card_output Die Karte die eingefügt wird
- * @return Statuscode:
- * - OK: Erfolgreich
- * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
- * - CRITICAL_ERROR: Array konnte nicht vergrößert werden
- */
 status insert(Deck *source_deck, const Card *card_output) {
     if (!source_deck || !card_output || source_deck->card_count < 0) return NULL_POINT_ERROR; // Initialisierungsfehler
 
@@ -212,14 +164,6 @@ status insert(Deck *source_deck, const Card *card_output) {
     return OK;
 }
 
-/**
- * @brief Zählt den Punktewert des Decks
- * @param source_deck Das zu zählende Deck
- * @return Statuscode:
- * - Wert >= 0: Fehlerfrei, enthält den entsprechenden Deck-Wert
- * - -1: NULL_POINT_ERROR
- * @warning Leert das Deck vollständig!
- */
 int consume_and_count_worth(Deck *source_deck) {
     if (!source_deck || source_deck->card_count <= 0) return -1;
 
@@ -241,16 +185,6 @@ int consume_and_count_worth(Deck *source_deck) {
     return (int) worth;
 }
 
-/**
- * @brief Teilt die Spielkarten entsprechend aus
- * @param main_deck Der "Ziehstapel"
- * @param destination_deck Der Spielerstapel; die Handkarten
- * @param card_count Die Anzahl der zu verwendenden Karten
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
- * - CRITICAL_ERROR: Array konnte nicht vergrößert werden
- */
 status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) {
     int player_index = 0;
     status error;
@@ -263,22 +197,16 @@ status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) 
     return OK;
 }
 
-/**
- *
- * @param source_deck Das Deck, welches angezeigt werden soll
- * @param print_indexes Anzeige der Indexnummern jeder Karte eine Zeile unter den Karten
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - NULL_POINT_ERROR: Deck ist leer oder =NULL
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
 status print_deck(Deck *source_deck, const boolean print_indexes) {
     if (!source_deck || source_deck->card_count <= 0) return NULL_POINT_ERROR;
     if (wprintf(L"Deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
 
     for (int i = 0; i < source_deck->card_count; i++)
-        if (wprintf(L"%hs%2hs%.1ls%hs", i != 0 ? " " : "", ranks[source_deck->cards[i].rank], &suits[source_deck->cards[i].suit],
-                   i + 1 == source_deck->card_count ? ".\n" : "") < 0)
+        if (wprintf(L"%hs%2hs%.1ls%hs",
+                    i != 0 ? " " : "",
+                    ranks[source_deck->cards[i].rank],
+                    &suits[source_deck->cards[i].suit],
+                    i + 1 == source_deck->card_count ? ".\n" : "") < 0)
             return PRINT_ERROR;
     if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
@@ -287,5 +215,17 @@ status print_deck(Deck *source_deck, const boolean print_indexes) {
             if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
         if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
+    return OK;
+}
+
+status deal_lowest_card(Deck *deck, Card *lowest_card) {
+    if (!deck || !lowest_card) return NULL_POINT_ERROR;
+    status error;
+    int lowest_card_index = 0;
+    for (int i = 1; i < deck->card_count; i++) {
+        if (deck->cards[lowest_card_index].rank > deck->cards[i].rank)
+            lowest_card_index = i;
+    }
+    if ((error = deck_draw_index(deck, lowest_card, lowest_card_index) != OK)) return error;
     return OK;
 }

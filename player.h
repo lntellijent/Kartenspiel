@@ -31,7 +31,7 @@ typedef struct {
  */
 status player_play_card(player player, Card *played_card);
 
-status get_strategic_card(Deck *deck, Card *lowest_card);
+status get_lowest_card(Deck *deck, Card *lowest_card);
 
 status get_alternating_card(Deck *deck, Card *highest_card);
 

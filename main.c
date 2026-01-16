@@ -13,6 +13,8 @@
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
 
+#define SHOW_OPPONENT_CARDS TRUE
+
 //C-Level C11
 
 /**
@@ -96,7 +98,7 @@ status game_start() {
     const int hand_size = 10;
     const player players[2] = {
         {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 0}, // Spieler
-        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 1} // Gegner
+        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 2} // Gegner
     };
 
     // Initialisierung fehlgeschlagen
@@ -242,7 +244,9 @@ boolean ask_yes_no() {
  */
 int main() {
     setlocale(LC_ALL, "");
+#ifdef _WIN32
     _setmode(_fileno(stdout), _O_U8TEXT);
+#endif
 
     boolean repeat = TRUE;
     status error = OK;
