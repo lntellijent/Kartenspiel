@@ -6,9 +6,9 @@
 #include <io.h>
 #include <string.h> // nur für strlen genutzt
 
-#include "card.h"
-#include "deck.h"
-#include "player.h"
+#include "../header/card.h"
+#include "../header/deck.h"
+#include "../header/player.h"
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE

@@ -2,7 +2,7 @@
 // Created by hoerz on 15.12.2025.
 //
 
-#include "card.h"
+#include "../header/card.h"
 
 winner card_clash(const Card *attacker_card, const Card *defender_card) {
     const int attacker_card_worth = attacker_card->rank;

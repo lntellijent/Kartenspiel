@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "deck.h"
+#include "../header/deck.h"
 
 
 #define STANDARD_DECK_SIZE 52
