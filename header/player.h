@@ -4,12 +4,14 @@
 
 #ifndef KARTENSPIEL_PLAYER_H
 #define KARTENSPIEL_PLAYER_H
+
 #include "deck.h"
 
 typedef struct {
     Deck *hand;
     Deck *points;
     int strategy;
+    char* name;
 } player;
 
 /**

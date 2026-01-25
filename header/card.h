@@ -4,6 +4,7 @@
 
 #ifndef CARD_H
 #define CARD_H
+
 #include <wchar.h>
 
 typedef enum {

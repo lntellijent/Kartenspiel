@@ -2,7 +2,6 @@
 // Created by hoerz on 15.12.2025.
 //
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 

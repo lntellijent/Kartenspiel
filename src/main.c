@@ -3,11 +3,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <fcntl.h>
-#include <io.h>
-#include <string.h> // nur für strlen genutzt
 
-#include "../header/card.h"
-#include "../header/deck.h"
 #include "../header/player.h"
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
@@ -98,7 +94,7 @@ status game_start() {
     const int hand_size = 10;
     const player players[2] = {
         {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 0}, // Spieler
-        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 2} // Gegner
+        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 1} // Gegner
     };
 
     // Initialisierung fehlgeschlagen
