@@ -108,5 +108,35 @@ status card_deal(Deck *main_deck, Deck *destination_deck, int card_count);
  */
 status print_deck(Deck *source_deck, boolean print_indexes);
 
+/**
+ * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @param deck Das Deck aus welchem die Karte genommen wird
+ * @param lowest_card die Karte selbst; hier die niedrigste Karte des Decks
+ * @return statuscodes:
+ * - OK: Fehlerfrei
+ * - NULL_POINT_ERROR: Karte oder Deck ist nicht initialisiert/ist NULL
+ */
 status deal_lowest_card(Deck *deck, Card *lowest_card);
+
+/**
+ * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @param deck Das Deck aus welchem die Karte genommen wird
+ * @param highest_card die Karte selbst; hier die höchste Karte des Decks
+ * @return statuscodes:
+ * - OK: Fehlerfrei
+ * - NULL_POINT_ERROR: Karte oder Deck ist nicht initialisiert/ist NULL
+ */
+status deal_highest_card(Deck *deck, Card *highest_card);
+
+/**
+ * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @param deck Das Deck aus welchem die Karte genommen wird
+ * @param card die Karte selbst; hier die Karte des Decks am übergebenen Index
+ * @param index der Index der Karte, die gezogen werden soll
+ * @return statuscodes:
+ * - OK: Fehlerfrei
+ * - NULL_POINT_ERROR: Karte oder Deck ist nicht initialisiert/ist NULL
+ */
+status deal_card_by_index(Deck *deck, Card *card, int index);
+
 #endif

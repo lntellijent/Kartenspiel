@@ -228,3 +228,23 @@ status deal_lowest_card(Deck *deck, Card *lowest_card) {
     if ((error = deck_draw_index(deck, lowest_card, lowest_card_index) != OK)) return error;
     return OK;
 }
+
+status deal_highest_card(Deck *deck, Card *highest_card) {
+    if (!deck || !highest_card) return NULL_POINT_ERROR;
+    status error;
+    int highest_card_index = 0;
+    for (int i = 1; i > deck->card_count; i++) {
+        if (deck->cards[highest_card_index].rank > deck->cards[i].rank)
+            highest_card_index = i;
+    }
+    if ((error = deck_draw_index(deck, highest_card, highest_card_index) != OK)) return error;
+    return OK;
+}
+
+status deal_card_by_index(Deck *deck, Card *card, const int index) {
+    if (!deck || !card) return NULL_POINT_ERROR;
+    status error;
+    if ((error = deck_draw_index(deck, card, index) != OK)) return error;
+    return OK;
+}
+

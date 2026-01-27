@@ -20,6 +20,8 @@ typedef enum {
     PRINT_ERROR // print-Statement fehlgeschlagen
 } status;
 
+
+
 status game_start();
 
 #endif //KARTENSPIEL_MAIN_H
