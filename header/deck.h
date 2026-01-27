@@ -100,13 +100,14 @@ status card_deal(Deck *main_deck, Deck *destination_deck, int card_count);
 /**
  *
  * @param source_deck Das Deck, welches angezeigt werden soll
+ * @param isAttacker Teilt mit, ob der Spieler angreift oder verteidigt.
  * @param print_indexes Anzeige der Indexnummern jeder Karte eine Zeile unter den Karten
  * @return Statuscode:
  * - OK: Fehlerfrei
  * - NULL_POINT_ERROR: Deck ist leer oder =NULL
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status print_deck(Deck *source_deck, boolean print_indexes);
+status print_deck(Deck *source_deck, boolean isAttacker, boolean print_indexes);
 
 /**
  * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste

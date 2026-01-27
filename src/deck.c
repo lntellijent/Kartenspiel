@@ -196,9 +196,14 @@ status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) 
     return OK;
 }
 
-status print_deck(Deck *source_deck, const boolean print_indexes) {
+status print_deck(Deck *source_deck, const boolean isAttacker, const boolean print_indexes) {
     if (!source_deck || source_deck->card_count <= 0) return NULL_POINT_ERROR;
-    if (wprintf(L"Deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
+    if (print_indexes) {
+        if (!isAttacker)
+            wprintf(L", ");
+        if (wprintf(L"deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
+    } else
+        if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
     for (int i = 0; i < source_deck->card_count; i++)
         if (wprintf(L"%hs%2hs%.1ls%hs",
@@ -233,8 +238,8 @@ status deal_highest_card(Deck *deck, Card *highest_card) {
     if (!deck || !highest_card) return NULL_POINT_ERROR;
     status error;
     int highest_card_index = 0;
-    for (int i = 1; i > deck->card_count; i++) {
-        if (deck->cards[highest_card_index].rank > deck->cards[i].rank)
+    for (int i = 1; i < deck->card_count; i++) {
+        if (deck->cards[highest_card_index].rank < deck->cards[i].rank)
             highest_card_index = i;
     }
     if ((error = deck_draw_index(deck, highest_card, highest_card_index) != OK)) return error;

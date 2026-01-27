@@ -39,7 +39,7 @@ status start_sequence() {
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status round_sequence(const int round) {
-    if (wprintf(L"Zug %d\n", round) < 0) return PRINT_ERROR;
+    if (wprintf(L"\n%hs[Zug %d]%hs\n\n", "--------------------- ", round, " ---------------------") < 0) return PRINT_ERROR;
     return OK;
 }
 
@@ -50,10 +50,11 @@ status round_sequence(const int round) {
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status card_played(const wchar_t* player_name, const Card *card, const boolean newline) {
+status card_played(const wchar_t* player_name, const Card *card, const boolean follow_up) {
+    if (follow_up)
+        if (wprintf(L", ") < 0) return PRINT_ERROR;
     if (wprintf(L"%ls legt %hs%.1ls", player_name, ranks[card->rank], &suits[card->suit]) < 0)
         return PRINT_ERROR;
-    if (newline) wprintf(L"\n");
     return OK;
 }
 
@@ -65,7 +66,7 @@ status card_played(const wchar_t* player_name, const Card *card, const boolean n
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
 status clash_decided(const wchar_t* player_name) {
-    if (wprintf(L"%ls gewinnt\n", player_name) < 0) return PRINT_ERROR;
+    if (wprintf(L" - %ls gewinnt\n", player_name) < 0) return PRINT_ERROR;
 
     return OK;
 }
@@ -124,12 +125,12 @@ status game_start() {
         if ((error = round_sequence(round_x_turn / 2)) != OK) return error;
 
         // Angreifer legt eine Karte
-        if ((error = player_play_card(players[attacker_index], &attacker_card, attacker_card, TRUE)) != OK) return error;
+        if ((error = player_play_card(players[attacker_index], &attacker_card, players[defender_index], attacker_card, TRUE)) != OK) return error;
         if ((error = card_played(players[attacker_index].name, &attacker_card, FALSE)) != OK) return error;
 
         // Verteidiger legt eine Karte
-        if ((error = player_play_card(players[defender_index], &defender_card, attacker_card, FALSE)) != OK) return error;
-        if ((error = card_played(players[defender_index].name, &defender_card, FALSE)) != OK) return error;
+        if ((error = player_play_card(players[defender_index], &defender_card, players[attacker_index], attacker_card, FALSE)) != OK) return error;
+        if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
 
         // Stich wird entschieden
@@ -197,30 +198,20 @@ static void trim(char *s) {
     *(end + 1) = '\0';
 }
 
-static status read_line(char *buf, const size_t size) {
-    if (fgets(buf, (int) size, stdin) == NULL) return CRITICAL_ERROR;
-    // Entferne das abschließende \n
-    const size_t len = strlen(buf);
-    if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
-    return OK;
-}
-
 /**
  * @brief Zeigt einen Prompt und akzeptiert 'j' für Ja oder 'n' für Nein.
  * @return TRUE oder FALSE, für Ja oder Nein
  * @note Fragt wiederholt nach, bis eine gültige Eingabe erfolgt.
  */
 boolean ask_yes_no() {
-    char line[128];
+    wchar_t line[2];
 
     for (;;) {
         wprintf(L"Noch ein mal Spielen? [j/n]: ");
         fflush(stdout);
 
-        // Defensiv als nein gewertet
-        if (read_line(line, sizeof(line)) != OK) return DEFAULT_GAME_REPEAT_SETTING;
-
-        trim(line);
+        // Defensiv als nein gewertet bzw anhand der Einstellung
+        if (wscanf(L"%1ls", line)) return DEFAULT_GAME_REPEAT_SETTING;
 
         // Standardverhalten für direktes Enter drücken
         if (line[0] == '\0') return DEFAULT_GAME_REPEAT_ON_ENTER_SETTING;

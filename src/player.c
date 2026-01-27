@@ -8,7 +8,7 @@
 
 #include "../header/player.h"
 
-#define SHOW_OPPONENT_CARDS TRUE
+#define SHOW_OPPONENT_CARDS FALSE
 
 /**
  * #ToDo
@@ -32,7 +32,6 @@ status player_name(player* player) {
                     return USER_INPUT_ERROR;
                 if (!isspace((unsigned char) player->name[0])) break;
             }
-            wprintf(L"\n%ls\n",player->name);
             break;
         default:;
             const wchar_t* opponent_names[] = {
@@ -45,48 +44,48 @@ status player_name(player* player) {
             };
             const int opponent_count = sizeof(opponent_names) / sizeof(opponent_names[0]);
             swprintf(player->name, 32, L"%ls", opponent_names[rand() % opponent_count]);
-            wprintf(L"\n%ls\n",player->name);
             break;
     }
     return OK;
 }
 
-status player_play_card(const player player, Card *played_card, const Card card_to_beat, const boolean isAttacker) {
+status player_play_card(const player hplayer, Card *played_card, const player opponent, const Card card_to_beat, const boolean isAttacker) {
     status error;
-    switch (player.strategy) {
+    switch (hplayer.strategy) {
         case 0:
-            if (player.hand->card_count <= 0) return NULL_POINT_ERROR;
-            if ((error = print_deck(player.hand, SHOW_OPPONENT_CARDS)) != OK) return error;
+            if (hplayer.hand->card_count <= 0) return NULL_POINT_ERROR;
+            if ((error = print_deck(hplayer.hand, isAttacker, TRUE)) != OK) return error;
+            if (SHOW_OPPONENT_CARDS)
+                if ((error = print_deck(opponent.hand, isAttacker, FALSE)) != OK) return error;
 
-            if (player.hand->card_count > 1) {
-                char number_holder[4];
+            if (hplayer.hand->card_count > 1) {
+                wchar_t number_holder[2];
                 int chosen_card = -1;
                 while (chosen_card == -1)
-                    if (fgets(number_holder, sizeof(number_holder), stdin) != NULL) {
-                        const int number_input = strtol(number_holder, NULL, 10);
-                        if (number_input >= 0 && number_input < player.hand->card_count)
+                    if (wscanf(L"%1ls", number_holder) == 1) {
+                        const int number_input = (int)wcstol(number_holder, NULL, 10);
+                        if (number_input >= 0 && number_input < hplayer.hand->card_count)
                             chosen_card = number_input;
                         else
                             if ((error = invalid_user_response()) != OK) return error;
                     }
 
-                if ((error = deck_draw_index(player.hand, played_card, chosen_card)) != OK) return error;
+                if ((error = deck_draw_index(hplayer.hand, played_card, chosen_card)) != OK) return error;
             } else {
-                if ((error = deck_draw_top(player.hand, played_card)) != OK) return error;
+                if ((error = deck_draw_top(hplayer.hand, played_card)) != OK) return error;
             }
             return OK;
         case 1:
-            if ((error = deck_draw_top(player.hand, played_card)) != OK) return error;
+            if ((error = deck_draw_top(hplayer.hand, played_card)) != OK) return error;
             return OK;
         case 2:
-            print_deck(player.hand, FALSE);
-            if ((error =  deal_highest_card(player.hand, played_card)) != OK) return error;
+            if ((error =  deal_highest_card(hplayer.hand, played_card)) != OK) return error;
             return OK;
         case 3: // #ToDo Spielt abwechselnd höchste und niedrigste Karte
-            if ((error = get_alternating_card(player.hand, played_card)) != OK) return error;
+            if ((error = get_alternating_card(hplayer.hand, played_card)) != OK) return error;
             return OK;
-        case 4: // #ToDo Versucht zu gewinnen, spielt andernfalls die niedrigste Karte
-            if ((error = get_intelligent_card(player.hand, played_card, card_to_beat, isAttacker)) != OK) return error;
+        case 4:
+            if ((error = get_intelligent_card(hplayer.hand, played_card, card_to_beat, isAttacker)) != OK) return error;
             return OK;
         default: return USER_INPUT_ERROR;
     }
@@ -119,8 +118,8 @@ status get_intelligent_card(Deck *deck, Card *intelligent_card, const Card card_
     }
 
     int highest_card_index = -1;
-    for (int i = 1; i > deck->card_count; i++) {
-        if (deck->cards[highest_card_index].rank > card_to_beat.rank)
+    for (int i = 0; i < deck->card_count; i++) {
+        if (deck->cards[i].rank > card_to_beat.rank && deck->cards[highest_card_index].rank > deck->cards[i].rank)
             highest_card_index = i;
     }
 

@@ -26,7 +26,7 @@ status player_name(player* player);
  * @brief Spielt eine Karte
  *
  * (Unabhängig davon ob KI-Gegner oder menschlicher Spieler)
- * @param player Der Spieler, welcher eine Karte spielen soll
+ * @param hplayer Der Spieler, welcher eine Karte spielen soll
  * @param played_card Entält die Karte die gespielt wird
  * @param card_to_beat Die Karte des Gegners, die es zu schlagen gilt
  * @param isAttacker Teilt mit, ob der Spieler an der Reihe angreift oder abwehrt.
@@ -41,7 +41,7 @@ status player_name(player* player);
  * 3. höchste zuerst
  * 4. Intelligent
  */
-status player_play_card(player player, Card *played_card, Card card_to_beat, boolean isAttacker);
+status player_play_card(player hplayer, Card *played_card, player opponent, Card card_to_beat, boolean isAttacker);
 
 /**
  * @brief teilt eine Karte aus.
