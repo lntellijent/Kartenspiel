@@ -53,17 +53,17 @@ static void swap_cards(Card *a, Card *b) {
  * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
  * - CRITICAL_ERROR: Array konnte nicht vergrößert werden
  */
-static status deck_ensure_capacity(Deck *source_deck, const int min_capacity) {
+static status deck_ensure_capacity(Deck *source_deck, const size_t min_capacity) {
     // ReSharper disable once CppDFAConstantConditions
     if (!source_deck) return NULL_POINT_ERROR; // Initialisierungsfehler
     if (min_capacity <= 0) return INVALID_ARGUMENT;
     if (min_capacity <= source_deck->capacity) return OK;
 
     // Wachstumsstrategie: entweder verdoppeln, oder auf min_capacity gehen
-    int new_capacity = source_deck->capacity > 0 ? source_deck->capacity * 2 : 1;
+    size_t new_capacity = source_deck->capacity > 0 ? source_deck->capacity * 2 : 1;
     if (new_capacity < min_capacity) new_capacity = min_capacity;
 
-    Card *new_card_array = realloc(source_deck->cards, (size_t) new_capacity * sizeof(Card));
+    Card *new_card_array = realloc(source_deck->cards, new_capacity * sizeof(Card));
     if (!new_card_array) return CRITICAL_ERROR; // realloc fehlgeschlagen, alte Daten bleiben intakt
 
     source_deck->cards = new_card_array;
@@ -73,7 +73,7 @@ static status deck_ensure_capacity(Deck *source_deck, const int min_capacity) {
 
 Deck *create_standard_deck(void) {
     // 52 Karten: (2..A) × (♠, ♣, ♥, ♦)
-    Deck *deck = (Deck *) malloc(sizeof(Deck));
+    Deck *deck = malloc(sizeof(Deck));
     if (!deck) return NULL;
 
     deck->capacity = STANDARD_DECK_SIZE;
@@ -97,13 +97,11 @@ Deck *create_standard_deck(void) {
     return deck;
 }
 
-Deck *create_empty_deck(int initial_capacity) {
-    if (initial_capacity <= 0) initial_capacity = 10; // Standard-Kapazität, falls ungültiger Wert eingegeben wird
-
-    Deck *d = (Deck *) malloc(sizeof *d);
+Deck *create_empty_deck(const size_t initial_capacity) {
+    Deck *d = malloc(sizeof *d);
     if (!d) return NULL;
 
-    d->cards = (Card *) malloc((size_t) initial_capacity * sizeof(Card));
+    d->cards = (Card *) malloc(initial_capacity * sizeof(Card));
     if (!d->cards) {
         free(d);
         return NULL;
@@ -121,7 +119,7 @@ status shuffle(const Deck *d) {
 
     // Fisher-Yates: i von n-1 herunter, j zufällig in [0..i]
     for (size_t i = d->card_count - 1; i > 0; --i) {
-        int j = rand() % (i + 1);
+        const size_t j = rand() % (i + 1);
         swap_cards(&d->cards[i], &d->cards[j]);
     }
     return OK;
@@ -138,7 +136,7 @@ status deck_draw_top(Deck *d, Card *out) {
     return OK;
 }
 
-status deck_draw_index(Deck *source_deck, Card *out, const int index) {
+status deck_draw_index(Deck *source_deck, Card *out, const size_t index) {
     if (!source_deck || is_empty(source_deck)) return NULL_POINT_ERROR;
     if (index >= source_deck->card_count) return NULL_POINT_ERROR;
 
@@ -163,29 +161,29 @@ status insert(Deck *source_deck, Card *card_output) {
     return OK;
 }
 
-int consume_and_count_worth(Deck *source_deck) {
+size_t consume_and_count_worth(Deck *source_deck) {
     if (!source_deck || source_deck->card_count <= 0) return -1;
 
-    Card c;
-    unsigned int worth = 0;
-    while (!is_empty(source_deck) && deck_draw_top(source_deck, &c) == OK) {
-        if (c.rank >= 2 && c.rank <= 10)
-            worth += c.rank; // Zahlen zählen gemäß ihren Augenzahlen
-        else if (c.rank > 10 && c.rank < 14) {
-            worth += c.rank - 9;
+    Card current_card;
+    size_t worth = 0;
+    while (!is_empty(source_deck) && deck_draw_top(source_deck, &current_card) == OK) {
+        if (current_card.rank >= 2 && current_card.rank <= 10)
+            worth += current_card.rank; // Zahlen zählen gemäß ihren Augenzahlen
+        else if (current_card.rank > 10 && current_card.rank < 14) {
+            worth += current_card.rank - 9;
             /* Offset = 9
              * Bube → 11-9=2 Punkte in der Wertung (nicht vom Stichwert her)
              * Dame → 12-9=3 Punkte
              * König → 13-9=4 Punkte
              */
-        } else if (c.rank == 14)
+        } else if (current_card.rank == 14)
             worth += 11; // Ass-Punktewert = 11
     }
-    return (int) worth;
+    return worth;
 }
 
 status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) {
-    int player_index = 0;
+    size_t player_index = 0;
     status error;
     Card card_holder;
 
@@ -199,7 +197,7 @@ status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) 
 status deal_lowest_card(Deck *deck, Card *lowest_card) {
     if (!deck || !lowest_card) return NULL_POINT_ERROR;
     status error;
-    int lowest_card_index = 0;
+    size_t lowest_card_index = 0;
     for (size_t i = 1; i < deck->card_count; i++) {
         if (deck->cards[lowest_card_index].rank > deck->cards[i].rank)
             lowest_card_index = i;
@@ -211,7 +209,7 @@ status deal_lowest_card(Deck *deck, Card *lowest_card) {
 status deal_highest_card(Deck *deck, Card *highest_card) {
     if (!deck || !highest_card) return NULL_POINT_ERROR;
     status error;
-    int highest_card_index = 0;
+    size_t highest_card_index = 0;
     for (size_t i = 1; i < deck->card_count; i++) {
         if (deck->cards[highest_card_index].rank < deck->cards[i].rank)
             highest_card_index = i;

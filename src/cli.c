@@ -29,7 +29,7 @@ status start_sequence() {
     return OK;
 } // #ToDo
 
-status round_sequence(const int round) {
+status round_sequence(const size_t round) {
     if (wprintf(L"\n%hs[Zug %d]%hs\n\n", "--------------------- ", round, " ---------------------") < 0) return PRINT_ERROR;
     return OK;
 } // #ToDo
@@ -44,13 +44,12 @@ status card_played(const wchar_t* player_name, const Card *card, const boolean f
 
 status clash_decided(const wchar_t* player_name) {
     if (wprintf(L" - %ls gewinnt\n", player_name) < 0) return PRINT_ERROR;
-
     return OK;
 } // #ToDo
 
 
-status game_winner(const wchar_t* winning_player, const int winning_player_points) {
-    if (wprintf(L"%ls gewinnt mit %d Punkten!\n", winning_player, winning_player_points) < 0) return PRINT_ERROR;
+status game_winner(const wchar_t* winning_player_name, const size_t winning_player_points) {
+    if (wprintf(L"%ls gewinnt mit %llu Punkten!\n", winning_player_name, winning_player_points) < 0) return PRINT_ERROR;
     return OK;
 } // #ToDo
 

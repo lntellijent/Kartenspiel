@@ -19,7 +19,7 @@ status game_start() {
     if ((error = shuffle(main_deck)) != OK) return error;
 
     // Spieler(-Decks) initialisieren
-    const int hand_size = 10;
+    const size_t hand_size = 10;
     player players[2] = {
         {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 0}, // Spieler
         {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 4} // Gegner
@@ -43,10 +43,10 @@ status game_start() {
     if ((error = start_sequence()) != OK) return error;
 
     Card attacker_card, defender_card;
-    int attacker_index = 1, defender_index = 0;
+    size_t attacker_index = 1, defender_index = 0;
 
     const int player_size = sizeof(players) / sizeof(players[0]);
-    int round_x_turn = 0;
+    size_t round_x_turn = 0;
     while (!(is_empty(players[0].hand) && is_empty(players[1].hand))) {
         round_x_turn += 2;
 
@@ -54,11 +54,11 @@ status game_start() {
         if ((error = round_sequence(round_x_turn / 2)) != OK) return error;
 
         // Angreifer legt eine Karte
-        if ((error = player_play_card(players[attacker_index], &attacker_card, players[defender_index], attacker_card, TRUE)) != OK) return error;
+        if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card, TRUE)) != OK) return error;
         if ((error = card_played(players[attacker_index].name, &attacker_card, FALSE)) != OK) return error;
 
         // Verteidiger legt eine Karte
-        if ((error = player_play_card(players[defender_index], &defender_card, players[attacker_index], attacker_card, FALSE)) != OK) return error;
+        if ((error = player_play_card(&players[defender_index], &defender_card, players[attacker_index], attacker_card, FALSE)) != OK) return error;
         if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
 
@@ -70,7 +70,7 @@ status game_start() {
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
                 if ((error = clash_decided(players[defender_index].name)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird getauscht
-                const int temp = attacker_index;
+                const size_t temp = attacker_index;
                 attacker_index = defender_index;
                 defender_index = temp;
                 break;
@@ -84,10 +84,10 @@ status game_start() {
         }
     }
 
-    int winning_player_index = 0, winning_player_points = 0;
+    size_t winning_player_index = 0, winning_player_points = 0;
     if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
     for (size_t p = 0; p < player_size; p++) {
-        const int points = consume_and_count_worth(players[p].points);
+        const size_t points = consume_and_count_worth(players[p].points);
         if (points == -1) return NULL_POINT_ERROR;
         if (winning_player_points < points) {
             winning_player_index = p;

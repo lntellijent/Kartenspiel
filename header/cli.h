@@ -36,7 +36,7 @@ status start_sequence();
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status round_sequence(const int round);
+status round_sequence(size_t round);
 
 /**
  * @brief Dient als Platzhalter für CLI-Nachrichten, wenn eine Karte gespielt wird.
@@ -60,7 +60,7 @@ status clash_decided(const wchar_t* player_name);
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status game_winner(const wchar_t* winning_player, int winning_player_points);
+status game_winner(const wchar_t* winning_player_name, int winning_player_points);
 
 /**
  * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste

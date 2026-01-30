@@ -10,8 +10,8 @@
 
 typedef struct {
     Card *cards;
-    int card_count;
-    int capacity;
+    size_t card_count;
+    size_t capacity;
 } Deck;
 
 /**
@@ -25,7 +25,7 @@ Deck *create_standard_deck(void);
  * @param initial_capacity Die Anzahl der freien Plätze, ohne, dass es erweitert werden muss
  * @return das leere Deck, falls ein Fehler auftritt: NULL
  */
-Deck *create_empty_deck(int initial_capacity);
+Deck *create_empty_deck(size_t initial_capacity);
 
 /**
  * @brief mischt das übergebene Deck
@@ -62,7 +62,7 @@ status deck_draw_top(Deck *d, Card *out);
  * - OK: Erfolgreich
  * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
  */
-status deck_draw_index(Deck *source_deck, Card *out, int index);
+status deck_draw_index(Deck *source_deck, Card *out, size_t index);
 
 /**
  * @brief fügt eine Karte dem Deck hinzu
@@ -83,7 +83,7 @@ status insert(Deck *source_deck, Card *card_output);
  * - -1: NULL_POINT_ERROR
  * @warning Leert das Deck vollständig!
  */
-int consume_and_count_worth(Deck *source_deck);
+size_t consume_and_count_worth(Deck *source_deck);
 
 /**
  * @brief Teilt die Spielkarten entsprechend aus

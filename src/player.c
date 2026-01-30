@@ -18,7 +18,7 @@ status player_name(player* player) {
             while (1) {
                 if (wscanf(L"%31ls", player->name) != 1) // #ToDo
                     return USER_INPUT_ERROR;
-                if (!isspace((unsigned char) player->name[0])) break;
+                if (!isspace(player->name[0])) break;
             }
             break;
         default:;
@@ -30,7 +30,7 @@ status player_name(player* player) {
                 L"Tessa",
                 L"Jax"
             };
-            const int opponent_count = sizeof(opponent_names) / sizeof(opponent_names[0]);
+            const size_t opponent_count = sizeof(opponent_names) / sizeof(opponent_names[0]);
             swprintf(player->name, 32, L"%ls", opponent_names[rand() % opponent_count]);
             break;
     }
@@ -51,9 +51,9 @@ status player_play_card(const player* players_turn, Card *player_card, const pla
                 int chosen_card = -1;
                 while (chosen_card == -1)
                     if (wscanf(L"%1ls", number_holder) == 1) { // #ToDo
-                        const int number_input = (int)wcstol(number_holder, NULL, 10);
-                        if (number_input >= 0 && number_input < players_turn->hand->card_count)
-                            chosen_card = number_input;
+                        const size_t number_input = (size_t)wcstol(number_holder, NULL, 10);
+                        if (number_input < players_turn->hand->card_count)
+                            chosen_card = (int) number_input;
                         else
                             if ((error = invalid_user_response()) != OK) return error;
                     }
@@ -92,6 +92,7 @@ status get_alternating_card(Deck *deck, Card *alternating_card) {
         }
     } else {
         started_alternating_cycle = TRUE;
+        get_alternating_card(deck, alternating_card);
     }
     return OK;
 }
@@ -105,20 +106,20 @@ status get_intelligent_card(Deck *deck, Card *intelligent_card, const Card card_
         return OK;
     }
 
-    int highest_card_index = -1;
+    int intelligent_card_index = -1;
     for (size_t i = 0; i < deck->card_count; i++) {
         if (deck->cards[i].rank > card_to_beat.rank && // Karte muss höher als die gegnerische sein...
-            deck->cards[highest_card_index].rank > deck->cards[i].rank)
-            // aber niedriger als die bereits gefundene Karte, um so minimal gewinnen wie möglich
-            highest_card_index = (int) i;
+            deck->cards[intelligent_card_index].rank > deck->cards[i].rank)
+            // ...aber niedriger als die bereits gefundene Karte, um so minimal gewinnen wie möglich
+            intelligent_card_index = (int) i;
     }
 
-    if (highest_card_index < 0) {
+    if (intelligent_card_index < 0) {
         // Falls die KI verliert, soll die niedrigste Karte gespielt werden, um so wenig wie möglich Punkte zu verlieren.
         deal_lowest_card(deck, intelligent_card);
     } else {
         // Falls die KI gewinnen kann, soll die niedrigste Karte gespielt werden, die zum Sieg führt.
-        deal_card_by_index(deck, intelligent_card, highest_card_index);
+        deal_card_by_index(deck, intelligent_card, intelligent_card_index);
     }
     return OK;
 }
