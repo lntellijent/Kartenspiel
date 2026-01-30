@@ -7,28 +7,16 @@
 #include <ctype.h>
 
 #include "../header/player.h"
+#include "../src/cli.c"
 
 #define SHOW_OPPONENT_CARDS FALSE
 
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten, falls eine ungültige Eingabe getätigt wurde.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status invalid_user_response() {
-    if (wprintf(L"Diese Eingabe ist ungültig, bitte probiere es erneut: ") < 0) return PRINT_ERROR;
-    return OK;
-}
-
 status player_name(player* player) {
-    // #ToDo
     switch (player->strategy) {
         case 0:
-            wprintf(L"Spielername: ");
+            ask_name();
             while (1) {
-                if (wscanf(L"%31ls", player->name) != 1)
+                if (wscanf(L"%31ls", player->name) != 1) // #ToDo
                     return USER_INPUT_ERROR;
                 if (!isspace((unsigned char) player->name[0])) break;
             }
@@ -62,7 +50,7 @@ status player_play_card(const player hplayer, Card *played_card, const player op
                 wchar_t number_holder[2];
                 int chosen_card = -1;
                 while (chosen_card == -1)
-                    if (wscanf(L"%1ls", number_holder) == 1) {
+                    if (wscanf(L"%1ls", number_holder) == 1) { // #ToDo
                         const int number_input = (int)wcstol(number_holder, NULL, 10);
                         if (number_input >= 0 && number_input < hplayer.hand->card_count)
                             chosen_card = number_input;
@@ -81,7 +69,7 @@ status player_play_card(const player hplayer, Card *played_card, const player op
         case 2:
             if ((error =  deal_highest_card(hplayer.hand, played_card)) != OK) return error;
             return OK;
-        case 3: // #ToDo Spielt abwechselnd höchste und niedrigste Karte
+        case 3:
             if ((error = get_alternating_card(hplayer.hand, played_card)) != OK) return error;
             return OK;
         case 4:

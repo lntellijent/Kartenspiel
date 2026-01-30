@@ -245,11 +245,3 @@ status deal_highest_card(Deck *deck, Card *highest_card) {
     if ((error = deck_draw_index(deck, highest_card, highest_card_index) != OK)) return error;
     return OK;
 }
-
-status deal_card_by_index(Deck *deck, Card *card, const int index) {
-    if (!deck || !card) return NULL_POINT_ERROR;
-    status error;
-    if ((error = deck_draw_index(deck, card, index) != OK)) return error;
-    return OK;
-}
-

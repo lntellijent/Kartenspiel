@@ -5,83 +5,12 @@
 #include <fcntl.h>
 
 #include "../header/player.h"
+#include "../src/cli.c"
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
 
 //C-Level C11
-
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten am Start des Spiels.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status start_sequence() {
-    const char *banner =
-            ".---------.\t.---------.\t.---------.\t.---------.\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "'---------'\t'---------'\t'---------'\t'---------'\n"
-            "                      Das Kartenspiel             \n";
-    if (wprintf(L"\n%hs\n\n", banner) < 0) return PRINT_ERROR;
-    return OK;
-}
-
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten für den Anfang einer Runde.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status round_sequence(const int round) {
-    if (wprintf(L"\n%hs[Zug %d]%hs\n\n", "--------------------- ", round, " ---------------------") < 0) return PRINT_ERROR;
-    return OK;
-}
-
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten, wenn eine Karte gespielt wird.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status card_played(const wchar_t* player_name, const Card *card, const boolean follow_up) {
-    if (follow_up)
-        if (wprintf(L", ") < 0) return PRINT_ERROR;
-    if (wprintf(L"%ls legt %hs%.1ls", player_name, ranks[card->rank], &suits[card->suit]) < 0)
-        return PRINT_ERROR;
-    return OK;
-}
-
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status clash_decided(const wchar_t* player_name) {
-    if (wprintf(L" - %ls gewinnt\n", player_name) < 0) return PRINT_ERROR;
-
-    return OK;
-}
-
-/**
- * #ToDo
- * @brief Dient als Platzhalter für CLI-Nachrichten am Ende des Spiels.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status game_winner(const wchar_t* winning_player, const int winning_player_points) {
-    if (wprintf(L"%ls gewinnt mit %d Punkten!\n", winning_player, winning_player_points) < 0) return PRINT_ERROR;
-    return OK;
-}
 
 status game_start() {
     status error;
@@ -187,7 +116,7 @@ status game_start() {
  * @brief Entfernt führende und nachfolgende Leerzeichen aus einem String
  * @param s den zu trimmenden String
  */
-static void trim(char *s) {
+static void trim(char *s) { // #ToDo
     while (*s && isspace((unsigned char) *s)) s++; // führende
     if (*s == '\0') {
         s[0] = '\0';
@@ -203,7 +132,7 @@ static void trim(char *s) {
  * @return TRUE oder FALSE, für Ja oder Nein
  * @note Fragt wiederholt nach, bis eine gültige Eingabe erfolgt.
  */
-boolean ask_yes_no() {
+boolean ask_yes_no() { // #ToDo
     wchar_t line[2];
 
     for (;;) {
@@ -211,7 +140,7 @@ boolean ask_yes_no() {
         fflush(stdout);
 
         // Defensiv als nein gewertet bzw anhand der Einstellung
-        if (wscanf(L"%1ls", line)) return DEFAULT_GAME_REPEAT_SETTING;
+        if (wscanf(L"%1ls", line)) return DEFAULT_GAME_REPEAT_SETTING; // #ToDo
 
         // Standardverhalten für direktes Enter drücken
         if (line[0] == '\0') return DEFAULT_GAME_REPEAT_ON_ENTER_SETTING;
