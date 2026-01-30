@@ -86,8 +86,8 @@ Deck *create_standard_deck(void) {
 
     // Füllreihenfolge fix: Pik, Kreuz, Herz, Karo; Ränge 2 ...A
     int card_count_index = 0;
-    for (int suit = 0; suit < 4; ++suit) {
-        for (int rank = RANK_2; rank <= RANK_A; ++rank) {
+    for (size_t suit = 0; suit < 4; ++suit) {
+        for (size_t rank = RANK_2; rank <= RANK_A; ++rank) {
             deck->cards[card_count_index].suit = (Suit) suit;
             deck->cards[card_count_index].rank = (Rank) rank;
             ++card_count_index;
@@ -120,7 +120,7 @@ status shuffle(const Deck *d) {
     ensure_rng_seeded();
 
     // Fisher-Yates: i von n-1 herunter, j zufällig in [0..i]
-    for (int i = d->card_count - 1; i > 0; --i) {
+    for (size_t i = d->card_count - 1; i > 0; --i) {
         int j = rand() % (i + 1);
         swap_cards(&d->cards[i], &d->cards[j]);
     }
@@ -145,7 +145,7 @@ status deck_draw_index(Deck *source_deck, Card *out, const int index) {
     // Index herausnehmen
     *out = source_deck->cards[index];
     // Daten aufrucken
-    for (int i = index; i < source_deck->card_count - 1; i++)
+    for (size_t i = index; i < source_deck->card_count - 1; i++)
         source_deck->cards[i] = source_deck->cards[i + 1];
     source_deck->card_count--;
     return OK;
@@ -205,7 +205,7 @@ status print_deck(Deck *source_deck, const boolean isAttacker, const boolean pri
     } else
         if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
-    for (int i = 0; i < source_deck->card_count; i++)
+    for (size_t i = 0; i < source_deck->card_count; i++)
         if (wprintf(L"%hs%2hs%.1ls%hs",
                     i != 0 ? " " : "",
                     ranks[source_deck->cards[i].rank],
@@ -215,7 +215,7 @@ status print_deck(Deck *source_deck, const boolean isAttacker, const boolean pri
     if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
     if (print_indexes) {
-        for (int i = 0; i < source_deck->card_count; i++)
+        for (size_t i = 0; i < source_deck->card_count; i++)
             if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
         if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
@@ -226,7 +226,7 @@ status deal_lowest_card(Deck *deck, Card *lowest_card) {
     if (!deck || !lowest_card) return NULL_POINT_ERROR;
     status error;
     int lowest_card_index = 0;
-    for (int i = 1; i < deck->card_count; i++) {
+    for (size_t i = 1; i < deck->card_count; i++) {
         if (deck->cards[lowest_card_index].rank > deck->cards[i].rank)
             lowest_card_index = i;
     }
@@ -238,7 +238,7 @@ status deal_highest_card(Deck *deck, Card *highest_card) {
     if (!deck || !highest_card) return NULL_POINT_ERROR;
     status error;
     int highest_card_index = 0;
-    for (int i = 1; i < deck->card_count; i++) {
+    for (size_t i = 1; i < deck->card_count; i++) {
         if (deck->cards[highest_card_index].rank < deck->cards[i].rank)
             highest_card_index = i;
     }
