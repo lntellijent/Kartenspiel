@@ -73,7 +73,7 @@ status print_deck(Deck *deck, const boolean player_isAttacker, const boolean pri
 
     if (print_indexes) {
         for (size_t i = 0; i < deck->card_count; i++)
-            if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
+            if (wprintf(L"%1hs[%llu]", "", i) < 0) return PRINT_ERROR;
         if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
     return OK;

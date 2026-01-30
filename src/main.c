@@ -63,7 +63,7 @@ status game_start() {
 
 
         // Stich wird entschieden
-        switch (card_clash(&attacker_card, &defender_card)) {
+        switch (card_clash(attacker_card, defender_card)) {
             default: return NULL_POINT_ERROR;
             case DEFENDER_WINS:
                 if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;

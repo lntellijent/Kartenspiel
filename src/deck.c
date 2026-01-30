@@ -86,10 +86,10 @@ Deck *create_standard_deck(void) {
 
     // Füllreihenfolge fix: Pik, Kreuz, Herz, Karo; Ränge 2 ...A
     int card_count_index = 0;
-    for (size_t suit = 0; suit < 4; ++suit) {
-        for (size_t rank = RANK_2; rank <= RANK_A; ++rank) {
-            deck->cards[card_count_index].suit = (Suit) suit;
-            deck->cards[card_count_index].rank = (Rank) rank;
+    for (size_t suit_index = 0; suit_index < 4; ++suit_index) {
+        for (size_t rank_index = RANK_2; rank_index <= RANK_A; ++rank_index) {
+            deck->cards[card_count_index].suit = (Suit) suit_index;
+            deck->cards[card_count_index].rank = (Rank) rank_index;
             ++card_count_index;
         }
     }
