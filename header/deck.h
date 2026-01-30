@@ -73,7 +73,7 @@ status deck_draw_index(Deck *source_deck, Card *out, int index);
  * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
  * - CRITICAL_ERROR: Array konnte nicht vergrößert werden
  */
-status insert(Deck *source_deck, const Card *card_output);
+status insert(Deck *source_deck, Card *card_output);
 
 /**
  * @brief Zählt den Punktewert des Decks
@@ -98,18 +98,6 @@ int consume_and_count_worth(Deck *source_deck);
 status card_deal(Deck *main_deck, Deck *destination_deck, int card_count);
 
 /**
- *
- * @param source_deck Das Deck, welches angezeigt werden soll
- * @param isAttacker Teilt mit, ob der Spieler angreift oder verteidigt.
- * @param print_indexes Anzeige der Indexnummern jeder Karte eine Zeile unter den Karten
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - NULL_POINT_ERROR: Deck ist leer oder =NULL
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- */
-status print_deck(Deck *source_deck, boolean isAttacker, boolean print_indexes);
-
-/**
  * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
  * @param deck Das Deck aus welchem die Karte genommen wird
  * @param lowest_card die Karte selbst; hier die niedrigste Karte des Decks
@@ -127,6 +115,6 @@ status deal_lowest_card(Deck *deck, Card *lowest_card);
  * - OK: Fehlerfrei
  * - NULL_POINT_ERROR: Karte oder Deck ist nicht initialisiert/ist NULL
  */
-status deal_highest_card(Deck *deck, Card *highest_card);
+status deal_highest_card(Deck *deck,  Card *highest_card);
 
 #endif

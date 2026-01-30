@@ -60,3 +60,29 @@ status deal_card_by_index(Deck *deck, Card *card, const int index) {
     if ((error = deck_draw_index(deck, card, index) != OK)) return error;
     return OK;
 } // #ToDo
+
+status print_deck(Deck *source_deck, const boolean isAttacker, const boolean print_indexes) {
+    if (!source_deck || source_deck->card_count <= 0) return NULL_POINT_ERROR;
+    if (print_indexes) {
+        if (!isAttacker)
+            wprintf(L", ");
+        if (wprintf(L"deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
+    } else
+        if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
+
+    for (size_t i = 0; i < source_deck->card_count; i++)
+        if (wprintf(L"%hs%2hs%.1ls%hs",
+                    i != 0 ? " " : "",
+                    ranks[source_deck->cards[i].rank],
+                    &suits[source_deck->cards[i].suit],
+                    i + 1 == source_deck->card_count ? ".\n" : "") < 0)
+            return PRINT_ERROR;
+    if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
+
+    if (print_indexes) {
+        for (size_t i = 0; i < source_deck->card_count; i++)
+            if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
+        if (wprintf(L"\n") < 0) return PRINT_ERROR;
+    }
+    return OK;
+}

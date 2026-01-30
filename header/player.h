@@ -26,9 +26,10 @@ status player_name(player* player);
  * @brief Spielt eine Karte
  *
  * (Unabhängig davon ob KI-Gegner oder menschlicher Spieler)
- * @param hplayer Der Spieler, welcher eine Karte spielen soll
- * @param played_card Entält die Karte die gespielt wird
- * @param card_to_beat Die Karte des Gegners, die es zu schlagen gilt
+ * @param players_turn Der Spieler, welcher eine Karte spielen soll
+ * @param player_card Entält die Karte die gespielt wird
+ * @param defender Der Spieler, der Verteidigt, falls man Angreifer ist
+ * @param defender_card Die Karte des Gegners, die es zu schlagen gilt
  * @param isAttacker Teilt mit, ob der Spieler an der Reihe angreift oder abwehrt.
  * @return Fehler-/Statuscodes:
  * - OK: Fehlerfrei
@@ -41,7 +42,7 @@ status player_name(player* player);
  * 3. höchste zuerst
  * 4. Intelligent
  */
-status player_play_card(player hplayer, Card *played_card, player opponent, Card card_to_beat, boolean isAttacker);
+status player_play_card(const player* players_turn, Card *player_card, player defender, Card defender_card, boolean isAttacker);
 
 /**
  * @brief teilt eine Karte aus.

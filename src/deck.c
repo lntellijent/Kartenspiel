@@ -151,7 +151,7 @@ status deck_draw_index(Deck *source_deck, Card *out, const int index) {
     return OK;
 }
 
-status insert(Deck *source_deck, const Card *card_output) {
+status insert(Deck *source_deck, Card *card_output) {
     if (!source_deck || !card_output || source_deck->card_count < 0) return NULL_POINT_ERROR; // Initialisierungsfehler
 
     // Kapazität sicherstellen
@@ -192,32 +192,6 @@ status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) 
     while (player_index++ < card_count) {
         if ((error = deck_draw_top(main_deck, &card_holder)) != OK) return error;
         if ((error = insert(destination_deck, &card_holder)) != OK) return error;
-    }
-    return OK;
-}
-
-status print_deck(Deck *source_deck, const boolean isAttacker, const boolean print_indexes) {
-    if (!source_deck || source_deck->card_count <= 0) return NULL_POINT_ERROR;
-    if (print_indexes) {
-        if (!isAttacker)
-            wprintf(L", ");
-        if (wprintf(L"deine Karten:\n%5hs", "") < 0) return PRINT_ERROR;
-    } else
-        if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
-
-    for (size_t i = 0; i < source_deck->card_count; i++)
-        if (wprintf(L"%hs%2hs%.1ls%hs",
-                    i != 0 ? " " : "",
-                    ranks[source_deck->cards[i].rank],
-                    &suits[source_deck->cards[i].suit],
-                    i + 1 == source_deck->card_count ? ".\n" : "") < 0)
-            return PRINT_ERROR;
-    if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
-
-    if (print_indexes) {
-        for (size_t i = 0; i < source_deck->card_count; i++)
-            if (wprintf(L"%1hs[%d]", "", i) < 0) return PRINT_ERROR;
-        if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
     return OK;
 }

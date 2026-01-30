@@ -37,43 +37,43 @@ status player_name(player* player) {
     return OK;
 }
 
-status player_play_card(const player hplayer, Card *played_card, const player opponent, const Card card_to_beat, const boolean isAttacker) {
+status player_play_card(const player* players_turn, Card *player_card, const player defender, const Card defender_card, const boolean isAttacker) {
     status error;
-    switch (hplayer.strategy) {
+    switch (players_turn->strategy) {
         case 0:
-            if (hplayer.hand->card_count <= 0) return NULL_POINT_ERROR;
-            if ((error = print_deck(hplayer.hand, isAttacker, TRUE)) != OK) return error;
+            if (players_turn->hand->card_count <= 0) return NULL_POINT_ERROR;
+            if ((error = print_deck(players_turn->hand, isAttacker, TRUE)) != OK) return error;
             if (SHOW_OPPONENT_CARDS)
-                if ((error = print_deck(opponent.hand, isAttacker, FALSE)) != OK) return error;
+                if ((error = print_deck(defender.hand, isAttacker, FALSE)) != OK) return error;
 
-            if (hplayer.hand->card_count > 1) {
+            if (players_turn->hand->card_count > 1) {
                 wchar_t number_holder[2];
                 int chosen_card = -1;
                 while (chosen_card == -1)
                     if (wscanf(L"%1ls", number_holder) == 1) { // #ToDo
                         const int number_input = (int)wcstol(number_holder, NULL, 10);
-                        if (number_input >= 0 && number_input < hplayer.hand->card_count)
+                        if (number_input >= 0 && number_input < players_turn->hand->card_count)
                             chosen_card = number_input;
                         else
                             if ((error = invalid_user_response()) != OK) return error;
                     }
 
-                if ((error = deck_draw_index(hplayer.hand, played_card, chosen_card)) != OK) return error;
+                if ((error = deck_draw_index(players_turn->hand, player_card, chosen_card)) != OK) return error;
             } else {
-                if ((error = deck_draw_top(hplayer.hand, played_card)) != OK) return error;
+                if ((error = deck_draw_top(players_turn->hand, player_card)) != OK) return error;
             }
             return OK;
         case 1:
-            if ((error = deck_draw_top(hplayer.hand, played_card)) != OK) return error;
+            if ((error = deck_draw_top(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 2:
-            if ((error =  deal_highest_card(hplayer.hand, played_card)) != OK) return error;
+            if ((error =  deal_highest_card(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 3:
-            if ((error = get_alternating_card(hplayer.hand, played_card)) != OK) return error;
+            if ((error = get_alternating_card(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 4:
-            if ((error = get_intelligent_card(hplayer.hand, played_card, card_to_beat, isAttacker)) != OK) return error;
+            if ((error = get_intelligent_card(players_turn->hand, player_card, defender_card, isAttacker)) != OK) return error;
             return OK;
         default: return USER_INPUT_ERROR;
     }
