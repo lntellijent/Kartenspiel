@@ -7,7 +7,7 @@
 #include <ctype.h>
 
 #include "../header/player.h"
-#include "../src/cli.c"
+#include "../header/cli.h"
 
 #define SHOW_OPPONENT_CARDS FALSE
 
@@ -47,16 +47,19 @@ status player_play_card(const player* players_turn, Card *player_card, const pla
                 if ((error = print_deck(defender.hand, isAttacker, FALSE)) != OK) return error;
 
             if (players_turn->hand->card_count > 1) {
-                wchar_t number_holder[2];
-                int chosen_card = -1;
-                while (chosen_card == -1)
+                size_t chosen_card = 0;
+                boolean acceptable_input = FALSE;
+                while (!acceptable_input) {
+                    wchar_t number_holder[2];
                     if (wscanf(L"%1ls", number_holder) == 1) { // #ToDo
                         const size_t number_input = (size_t)wcstol(number_holder, NULL, 10);
-                        if (number_input < players_turn->hand->card_count)
-                            chosen_card = (int) number_input;
-                        else
+                        if (number_input < players_turn->hand->card_count) {
+                            chosen_card = number_input;
+                            acceptable_input = TRUE;
+                        } else
                             if ((error = invalid_user_response()) != OK) return error;
                     }
+                }
 
                 if ((error = deck_draw_index(players_turn->hand, player_card, chosen_card)) != OK) return error;
             } else {
@@ -107,11 +110,11 @@ status get_intelligent_card(Deck *deck, Card *intelligent_card, const Card card_
     }
 
     int intelligent_card_index = -1;
-    for (size_t i = 0; i < deck->card_count; i++) {
-        if (deck->cards[i].rank > card_to_beat.rank && // Karte muss höher als die gegnerische sein...
-            deck->cards[intelligent_card_index].rank > deck->cards[i].rank)
+    for (size_t card_index = 0; card_index < deck->card_count; card_index++) {
+        if (deck->cards[card_index].rank > card_to_beat.rank && // Karte muss höher als die gegnerische sein...
+            deck->cards[intelligent_card_index].rank > deck->cards[card_index].rank)
             // ...aber niedriger als die bereits gefundene Karte, um so minimal gewinnen wie möglich
-            intelligent_card_index = (int) i;
+            intelligent_card_index = (int) card_index;
     }
 
     if (intelligent_card_index < 0) {

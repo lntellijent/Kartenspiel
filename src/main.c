@@ -5,7 +5,7 @@
 #include <fcntl.h>
 
 #include "../header/player.h"
-#include "../src/cli.c"
+#include "../header/cli.h"
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
@@ -29,13 +29,13 @@ status game_start() {
     if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULL_POINT_ERROR;
 
 
-    for (size_t i = 0; i < sizeof(players)/sizeof(players[0]); i++) {
-        if ((error = player_name(&players[i])) != OK) return error;
+    for (size_t player_index = 0; player_index < sizeof(players)/sizeof(players[0]); player_index++) {
+        if ((error = player_name(&players[player_index])) != OK) return error;
     }
 
     // Austeilen der Karten
-    for (size_t p = 0; p < sizeof(players) / sizeof(players[0]); p++)
-        if ((error = card_deal(main_deck, players[p].hand, hand_size)) != OK) return error;
+    for (size_t player_index = 0; player_index < sizeof(players) / sizeof(players[0]); player_index++)
+        if ((error = card_deal(main_deck, players[player_index].hand, hand_size)) != OK) return error;
 
     if (is_empty(players[0].hand) || is_empty(players[1].hand)) return NULL_POINT_ERROR;
 
@@ -45,13 +45,13 @@ status game_start() {
     Card attacker_card, defender_card;
     size_t attacker_index = 1, defender_index = 0;
 
-    const int player_size = sizeof(players) / sizeof(players[0]);
-    size_t round_x_turn = 0;
+    const size_t player_size = sizeof(players) / sizeof(players[0]);
+    size_t round_index = 0;
     while (!(is_empty(players[0].hand) && is_empty(players[1].hand))) {
-        round_x_turn += 2;
+        round_index++;
 
         // Runden-Sequenz des Spiels
-        if ((error = round_sequence(round_x_turn / 2)) != OK) return error;
+        if ((error = round_sequence(round_index)) != OK) return error;
 
         // Angreifer legt eine Karte
         if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card, TRUE)) != OK) return error;
@@ -70,9 +70,9 @@ status game_start() {
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
                 if ((error = clash_decided(players[defender_index].name)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird getauscht
-                const size_t temp = attacker_index;
+                const size_t temp_role_index = attacker_index;
                 attacker_index = defender_index;
-                defender_index = temp;
+                defender_index = temp_role_index;
                 break;
             case TIE: // Angreifer gewinnt ebenfalls, wenn die Gleiche Karte gelegt wurde
             case ATTACKER_WINS:
@@ -86,11 +86,11 @@ status game_start() {
 
     size_t winning_player_index = 0, winning_player_points = 0;
     if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
-    for (size_t p = 0; p < player_size; p++) {
-        const size_t points = consume_and_count_worth(players[p].points);
+    for (size_t player_index = 0; player_index < player_size; player_index++) {
+        const size_t points = consume_and_count_worth(players[player_index].points);
         if (points == -1) return NULL_POINT_ERROR;
         if (winning_player_points < points) {
-            winning_player_index = p;
+            winning_player_index = player_index;
             winning_player_points = points;
         }
     }

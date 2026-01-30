@@ -112,61 +112,61 @@ Deck *create_empty_deck(const size_t initial_capacity) {
     return d;
 }
 
-status shuffle(const Deck *d) {
-    if (!d || d->card_count <= 1) return NULL_POINT_ERROR;
+status shuffle(const Deck *deck) {
+    if (!deck || deck->card_count <= 1) return NULL_POINT_ERROR;
 
     ensure_rng_seeded();
 
     // Fisher-Yates: i von n-1 herunter, j zufällig in [0..i]
-    for (size_t i = d->card_count - 1; i > 0; --i) {
+    for (size_t i = deck->card_count - 1; i > 0; --i) {
         const size_t j = rand() % (i + 1);
-        swap_cards(&d->cards[i], &d->cards[j]);
+        swap_cards(&deck->cards[i], &deck->cards[j]);
     }
     return OK;
 }
 
-boolean is_empty(const Deck *d) {
-    return (!d || d->card_count == 0) == 0 ? FALSE : TRUE;
+boolean is_empty(const Deck *deck) {
+    return (!deck || deck->card_count == 0) == 0 ? FALSE : TRUE;
 }
 
-status deck_draw_top(Deck *d, Card *out) {
-    if (!d || is_empty(d)) return NULL_POINT_ERROR;
+status deck_draw_top(Deck *deck, Card *output_card) {
+    if (!deck || is_empty(deck)) return NULL_POINT_ERROR;
     // Top ist das letzte Element (LIFO)
-    *out = d->cards[--d->card_count];
+    *output_card = deck->cards[--deck->card_count];
     return OK;
 }
 
-status deck_draw_index(Deck *source_deck, Card *out, const size_t index) {
-    if (!source_deck || is_empty(source_deck)) return NULL_POINT_ERROR;
-    if (index >= source_deck->card_count) return NULL_POINT_ERROR;
+status deck_draw_index(Deck *deck, Card *output_card, const size_t card_index) {
+    if (!deck || is_empty(deck)) return NULL_POINT_ERROR;
+    if (card_index >= deck->card_count) return NULL_POINT_ERROR;
 
     // Index herausnehmen
-    *out = source_deck->cards[index];
+    *output_card = deck->cards[card_index];
     // Daten aufrucken
-    for (size_t i = index; i < source_deck->card_count - 1; i++)
-        source_deck->cards[i] = source_deck->cards[i + 1];
-    source_deck->card_count--;
+    for (size_t i = card_index; i < deck->card_count - 1; i++)
+        deck->cards[i] = deck->cards[i + 1];
+    deck->card_count--;
     return OK;
 }
 
-status insert(Deck *source_deck, Card *card_output) {
-    if (!source_deck || !card_output || source_deck->card_count < 0) return NULL_POINT_ERROR; // Initialisierungsfehler
+status insert(Deck *deck, Card *output_card) {
+    if (!deck || !output_card || deck->card_count < 0) return NULL_POINT_ERROR; // Initialisierungsfehler
 
     // Kapazität sicherstellen
     status error;
-    if ((error = deck_ensure_capacity(source_deck, source_deck->card_count + 1)) != OK) return error;
+    if ((error = deck_ensure_capacity(deck, deck->card_count + 1)) != OK) return error;
     // Wachstum fehlgeschlagen
 
-    source_deck->cards[source_deck->card_count++] = *card_output;
+    deck->cards[deck->card_count++] = *output_card;
     return OK;
 }
 
-size_t consume_and_count_worth(Deck *source_deck) {
-    if (!source_deck || source_deck->card_count <= 0) return -1;
+size_t consume_and_count_worth(Deck *deck) {
+    if (!deck || deck->card_count <= 0) return -1;
 
     Card current_card;
     size_t worth = 0;
-    while (!is_empty(source_deck) && deck_draw_top(source_deck, &current_card) == OK) {
+    while (!is_empty(deck) && deck_draw_top(deck, &current_card) == OK) {
         if (current_card.rank >= 2 && current_card.rank <= 10)
             worth += current_card.rank; // Zahlen zählen gemäß ihren Augenzahlen
         else if (current_card.rank > 10 && current_card.rank < 14) {
@@ -182,13 +182,13 @@ size_t consume_and_count_worth(Deck *source_deck) {
     return worth;
 }
 
-status card_deal(Deck *main_deck, Deck *destination_deck, const int card_count) {
+status card_deal(Deck *source_deck, Deck *destination_deck, const size_t card_count) {
     size_t player_index = 0;
     status error;
     Card card_holder;
 
     while (player_index++ < card_count) {
-        if ((error = deck_draw_top(main_deck, &card_holder)) != OK) return error;
+        if ((error = deck_draw_top(source_deck, &card_holder)) != OK) return error;
         if ((error = insert(destination_deck, &card_holder)) != OK) return error;
     }
     return OK;
@@ -198,7 +198,7 @@ status deal_lowest_card(Deck *deck, Card *lowest_card) {
     if (!deck || !lowest_card) return NULL_POINT_ERROR;
     status error;
     size_t lowest_card_index = 0;
-    for (size_t i = 1; i < deck->card_count; i++) {
+    for (size_t i = 0; i < deck->card_count; i++) {
         if (deck->cards[lowest_card_index].rank > deck->cards[i].rank)
             lowest_card_index = i;
     }
@@ -210,10 +210,17 @@ status deal_highest_card(Deck *deck, Card *highest_card) {
     if (!deck || !highest_card) return NULL_POINT_ERROR;
     status error;
     size_t highest_card_index = 0;
-    for (size_t i = 1; i < deck->card_count; i++) {
-        if (deck->cards[highest_card_index].rank < deck->cards[i].rank)
-            highest_card_index = i;
+    for (size_t card_index = 0; card_index < deck->card_count; card_index++) {
+        if (deck->cards[highest_card_index].rank < deck->cards[card_index].rank)
+            highest_card_index = card_index;
     }
     if ((error = deck_draw_index(deck, highest_card, highest_card_index) != OK)) return error;
+    return OK;
+}
+
+status deal_card_by_index(Deck *deck, Card *card, const size_t index) {
+    if (!deck || !card) return NULL_POINT_ERROR;
+    status error;
+    if ((error = deck_draw_index(deck, card, index) != OK)) return error;
     return OK;
 }
