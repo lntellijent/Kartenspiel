@@ -4,6 +4,8 @@
 
 #ifndef KARTENSPIEL_CLI_H
 #define KARTENSPIEL_CLI_H
+#include "card.h"
+#include "deck.h"
 #include "main.h"
 
 /**
@@ -34,7 +36,7 @@ status start_sequence();
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status round_sequence(const int round)
+status round_sequence(const int round);
 
 /**
  * @brief Dient als Platzhalter für CLI-Nachrichten, wenn eine Karte gespielt wird.

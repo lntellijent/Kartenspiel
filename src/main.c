@@ -29,12 +29,12 @@ status game_start() {
     if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULL_POINT_ERROR;
 
 
-    for (int i = 0; i < sizeof(players)/sizeof(players[0]); i++) {
+    for (size_t i = 0; i < sizeof(players)/sizeof(players[0]); i++) {
         if ((error = player_name(&players[i])) != OK) return error;
     }
 
     // Austeilen der Karten
-    for (int p = 0; p < sizeof(players) / sizeof(players[0]); p++)
+    for (size_t p = 0; p < sizeof(players) / sizeof(players[0]); p++)
         if ((error = card_deal(main_deck, players[p].hand, hand_size)) != OK) return error;
 
     if (is_empty(players[0].hand) || is_empty(players[1].hand)) return NULL_POINT_ERROR;
@@ -86,7 +86,7 @@ status game_start() {
 
     int winning_player_index = 0, winning_player_points = 0;
     if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
-    for (int p = 0; p < player_size; p++) {
+    for (size_t p = 0; p < player_size; p++) {
         const int points = consume_and_count_worth(players[p].points);
         if (points == -1) return NULL_POINT_ERROR;
         if (winning_player_points < points) {

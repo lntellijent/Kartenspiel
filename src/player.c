@@ -106,9 +106,11 @@ status get_intelligent_card(Deck *deck, Card *intelligent_card, const Card card_
     }
 
     int highest_card_index = -1;
-    for (int i = 0; i < deck->card_count; i++) {
-        if (deck->cards[i].rank > card_to_beat.rank && deck->cards[highest_card_index].rank > deck->cards[i].rank)
-            highest_card_index = i;
+    for (size_t i = 0; i < deck->card_count; i++) {
+        if (deck->cards[i].rank > card_to_beat.rank && // Karte muss höher als die gegnerische sein...
+            deck->cards[highest_card_index].rank > deck->cards[i].rank)
+            // aber niedriger als die bereits gefundene Karte, um so minimal gewinnen wie möglich
+            highest_card_index = (int) i;
     }
 
     if (highest_card_index < 0) {
