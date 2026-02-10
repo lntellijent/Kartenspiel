@@ -86,14 +86,30 @@ status print_deck(Deck *deck, const boolean player_isAttacker, const boolean pri
     return OK;
 }
 
-status read_single_digit(size_t *out) {
-    wchar_t line[32];
-    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return -1;
+void discard_line(void) {
+    wint_t wc;
+    while ((wc = getwchar()) != L'\n' && wc != WEOF) {}
+}
 
-    // Zeilenumbruch entfernen (falls vorhanden)
-    wchar_t *p = line;
-    while (*p != L'\0' && *p != L'\n') ++p;
-    if (*p == L'\n') *p = L'\0';
+status read_single_digit(size_t *out) {
+    const size_t len = 32;
+    wchar_t line[len];
+    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return USER_INPUT_ERROR;
+
+    // Wenn die Zeile mit '\n' endet, entferne ihn
+    boolean new_line_found = FALSE;
+    for (size_t i = 0; i < len; i++) {
+        if (line[i] == L'\n') {
+            line[i] = L'\0';
+            new_line_found = TRUE;
+            break;
+        }
+    }
+    if (!new_line_found) {
+        // Kein '\n' im Puffer -> Eingabe war länger als in den Buffer passt
+        // => Zeile wurde abgeschnitten; Rest bis zum Zeilenende verwerfen
+        discard_line();
+    }
 
     // Optional: führende und folgende Whitespaces erlauben
     wchar_t *start = line;
@@ -112,8 +128,25 @@ status read_single_digit(size_t *out) {
 }
 
 status read_yes_no(boolean *out) {
-    wchar_t line[32];
-    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return -1;
+    const size_t len = 12;
+    wchar_t line[len];
+    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return USER_INPUT_ERROR;
+
+    // Wenn die Zeile mit '\n' endet, entferne ihn
+    boolean new_line_found = FALSE;
+    for (size_t i = 0; i < len; i++) {
+        if (line[i] == L'\n') {
+            line[i] = L'\0';
+            new_line_found = TRUE;
+            break;
+        }
+    }
+    if (!new_line_found) {
+        // Kein '\n' im Puffer -> Eingabe war länger als in den Buffer passt
+        // => Zeile wurde abgeschnitten; Rest bis zum Zeilenende verwerfen
+        discard_line();
+    }
+
 
     // Zeilenumbruch entfernen (falls vorhanden)
     wchar_t *p = line;
@@ -128,7 +161,7 @@ status read_yes_no(boolean *out) {
     while (end > start && iswspace(end[-1])) --end;
     *end = L'\0';
 
-    // Gültig, wenn exakt 1 Ziffer übrig bleibt
+    // Gültig, wenn exakt j oder n übrig bleibt
     if (tolower(start[0]) == L'j' && start[1] == L'\0') {
         *out = TRUE;
         return OK;
@@ -142,14 +175,25 @@ status read_yes_no(boolean *out) {
 
 
 status read_string(wchar_t out[32]) {
-    wchar_t line[32];
+    const size_t len = 32;
+    wchar_t line[len];
     if (!fgetws(line, 32, stdin))
-        return -1;
+        return USER_INPUT_ERROR;
 
-    // Zeilenumbruch entfernen (falls vorhanden)
-    wchar_t *p = line;
-    while (*p != L'\0' && *p != L'\n') ++p;
-    if (*p == L'\n') *p = L'\0';
+    // Wenn die Zeile mit '\n' endet, entferne ihn
+    boolean new_line_found = FALSE;
+    for (size_t i = 0; i < len; i++) {
+        if (line[i] == L'\n') {
+            line[i] = L'\0';
+            new_line_found = TRUE;
+            break;
+        }
+    }
+    if (!new_line_found) {
+        // Kein '\n' im Puffer -> Eingabe war länger als in den Buffer passt
+        // => Zeile wurde abgeschnitten; Rest bis zum Zeilenende verwerfen
+        discard_line();
+    }
 
     // führende Whitespaces entfernen
     wchar_t *start = line;
@@ -161,14 +205,11 @@ status read_string(wchar_t out[32]) {
     while (end > start && iswspace(end[-1])) --end;
     *end = L'\0';
 
-    // In out[32] kopieren (trunciert falls nötig)
-    size_t len = (size_t) (end - start);
-    if (len > 31) len = 31; // Platz für Nullterminator
-
-    if (len > 0) {
+    const size_t new_len = (size_t) (end - start);
+    if (new_len > 0) {
         wmemcpy(out, start, len);
     }
-    out[len] = L'\0';
+    out[new_len] = L'\0';
 
     return OK;
 }

@@ -147,7 +147,7 @@ int main() {
                 default: return error;
             }
 
-        if ((error = wprintf(L"Noch einmal spielen? (j/n)")) < 0) return error;
+        if ((error = wprintf(L"Noch einmal spielen? (j/n): ")) < 0) return error;
         boolean input;
         while (1) {
             error = read_yes_no(&input);
