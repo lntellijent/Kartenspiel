@@ -29,7 +29,7 @@ status game_start() {
     if (!players[0].hand || !players[0].points || !players[1].hand || !players[1].points) return NULL_POINT_ERROR;
 
 
-    for (size_t player_index = 0; player_index < sizeof(players)/sizeof(players[0]); player_index++) {
+    for (size_t player_index = 0; player_index < sizeof(players) / sizeof(players[0]); player_index++) {
         if ((error = player_name(&players[player_index])) != OK) return error;
     }
 
@@ -54,11 +54,13 @@ status game_start() {
         if ((error = round_sequence(round_index)) != OK) return error;
 
         // Angreifer legt eine Karte
-        if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card, TRUE)) != OK) return error;
+        if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card,
+                                      TRUE)) != OK) return error;
         if ((error = card_played(players[attacker_index].name, &attacker_card, FALSE)) != OK) return error;
 
         // Verteidiger legt eine Karte
-        if ((error = player_play_card(&players[defender_index], &defender_card, players[attacker_index], attacker_card, FALSE)) != OK) return error;
+        if ((error = player_play_card(&players[defender_index], &defender_card, players[attacker_index], attacker_card,
+                                      FALSE)) != OK) return error;
         if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
 
@@ -68,7 +70,7 @@ status game_start() {
             case DEFENDER_WINS:
                 if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[defender_index].name)) != OK) return error;
+                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird getauscht
                 const size_t temp_role_index = attacker_index;
                 attacker_index = defender_index;
@@ -78,7 +80,7 @@ status game_start() {
             case ATTACKER_WINS:
                 if ((error = insert(players[attacker_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[attacker_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[attacker_index].name)) != OK) return error;
+                if ((error = clash_decided(players[attacker_index].name, &attacker_card, &defender_card)) != OK) return error;
                 // Angreifer-Verteidigerrolle wird nicht getauscht
                 break;
         }
@@ -113,49 +115,6 @@ status game_start() {
 }
 
 /**
- * @brief Entfernt führende und nachfolgende Leerzeichen aus einem String
- * @param s den zu trimmenden String
- */
-static void trim(char *s) { // #ToDo
-    while (*s && isspace((unsigned char) *s)) s++; // führende
-    if (*s == '\0') {
-        s[0] = '\0';
-        return;
-    } // nur Spaces
-    char *end = s + strlen(s) - 1;
-    while (end > s && isspace((unsigned char) *end)) end--; // nachfolgende
-    *(end + 1) = '\0';
-}
-
-/**
- * @brief Zeigt einen Prompt und akzeptiert 'j' für Ja oder 'n' für Nein.
- * @return TRUE oder FALSE, für Ja oder Nein
- * @note Fragt wiederholt nach, bis eine gültige Eingabe erfolgt.
- */
-boolean ask_yes_no() { // #ToDo
-    wchar_t line[2];
-
-    for (;;) {
-        wprintf(L"Noch ein mal Spielen? [j/n]: ");
-        fflush(stdout);
-
-        // Defensiv als nein gewertet bzw anhand der Einstellung
-        if (wscanf(L"%1ls", line)) return DEFAULT_GAME_REPEAT_SETTING; // #ToDo
-
-        // Standardverhalten für direktes Enter drücken
-        if (line[0] == '\0') return DEFAULT_GAME_REPEAT_ON_ENTER_SETTING;
-
-        // Nur erstes Zeichen auswerten
-        const unsigned char c = (unsigned char) tolower((unsigned char) line[0]);
-        if (c == 'j') return TRUE; // Ja
-        if (c == 'n') return FALSE; // Nein
-        if (c != 'n' && c != 'j')
-            wprintf(L"Ungültige Eingabe: '%c'. Bitte 'j'/'y' für ja oder 'n' für nein.\n", line[0]);
-    }
-}
-
-
-/**
  * @brief Startet das Programm und behandelt errors
  * @return Statuscode:
  * - OK: Fehlerfrei
@@ -172,21 +131,35 @@ int main() {
     while (repeat) {
         if ((error = game_start()) != OK)
             switch (error) {
-            case NULL_POINT_ERROR:
+                case NULL_POINT_ERROR:
                     if (wprintf(L"Initialisierungsfehler\n") < 0) return PRINT_ERROR;
                     break;
-            case CRITICAL_ERROR:
+                case CRITICAL_ERROR:
                     if (wprintf(L"Wachstum fehlgeschlagen") < 0) return PRINT_ERROR;
                     break;
-            case USER_INPUT_ERROR:
+                case USER_INPUT_ERROR:
                     if (wprintf(L"Eingabe konnte nicht verarbeitet werden") < 0) return PRINT_ERROR;
                     break;
-            case PRINT_ERROR:
+                case PRINT_ERROR:
                     if (wprintf(L"Darstellung fehlgeschlagen") < 0) return PRINT_ERROR;
                     break;
-            default: return error;
+                default: return error;
             }
-        if (!ask_yes_no()) repeat = FALSE;
+
+        if((error = wprintf(L"Noch einmal spielen? (j/n)")) < 0) return error;
+        boolean input;
+        while (1) {
+            error = read_yes_no(&input);
+            if (error == OK) {
+                if (!input)
+                    repeat = FALSE;
+                break;
+            }
+            if (error == USER_INPUT_ERROR)
+                invalid_user_response();
+            if (error != OK && error != USER_INPUT_ERROR)
+                return error;
+        }
     }
     return error;
 }

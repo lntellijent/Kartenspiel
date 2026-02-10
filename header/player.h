@@ -20,7 +20,7 @@ typedef struct {
  * @return statuscode:
  * -
  */
-status player_name(player* player);
+status player_name(player *player);
 
 /**
  * @brief Spielt eine Karte
@@ -42,7 +42,8 @@ status player_name(player* player);
  * 3. höchste zuerst
  * 4. Intelligent
  */
-status player_play_card(const player* players_turn, Card *player_card, player defender, Card defender_card, boolean isAttacker);
+status player_play_card(const player *players_turn, Card *player_card, player defender, Card defender_card,
+                        boolean isAttacker);
 
 /**
  * @brief teilt eine Karte aus.

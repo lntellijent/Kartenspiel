@@ -11,18 +11,27 @@
 
 #define SHOW_OPPONENT_CARDS FALSE
 
-status player_name(player* player) {
+status player_name(player *player) {
     switch (player->strategy) {
         case 0:
-            ask_name();
             while (1) {
-                if (wscanf(L"%31ls", player->name) != 1) // #ToDo
-                    return USER_INPUT_ERROR;
+                wchar_t input[32];
+                ask_name();
+                const status error = read_string(player->name);
+                switch (error) {
+                    case OK:
+                        break;
+                    case USER_INPUT_ERROR:
+                        invalid_user_response();
+                        break;
+                    default:
+                        return error;
+                }
                 if (!isspace(player->name[0])) break;
             }
             break;
-        default:;
-            const wchar_t* opponent_names[] = {
+        default: ;
+            const wchar_t *opponent_names[] = {
                 L"Kael",
                 L"Mira",
                 L"Flint",
@@ -37,7 +46,8 @@ status player_name(player* player) {
     return OK;
 }
 
-status player_play_card(const player* players_turn, Card *player_card, const player defender, const Card defender_card, const boolean isAttacker) {
+status player_play_card(const player *players_turn, Card *player_card, const player defender, const Card defender_card,
+                        const boolean isAttacker) {
     status error;
     switch (players_turn->strategy) {
         case 0:
@@ -48,20 +58,24 @@ status player_play_card(const player* players_turn, Card *player_card, const pla
 
             if (players_turn->hand->card_count > 1) {
                 size_t chosen_card = 0;
-                boolean acceptable_input = FALSE;
+                size_t number_input = 0;
+                boolean acceptable_input = FALSE;  // oder: bool acceptable_input = false;
+
                 while (!acceptable_input) {
-                    wchar_t number_holder[2];
-                    if (wscanf(L"%1ls", number_holder) == 1) { // #ToDo
-                        const size_t number_input = (size_t)wcstol(number_holder, NULL, 10);
-                        if (number_input < players_turn->hand->card_count) {
-                            chosen_card = number_input;
-                            acceptable_input = TRUE;
-                        } else
-                            if ((error = invalid_user_response()) != OK) return error;
+                    int rc = read_single_digit(&number_input);
+                    if (rc == 0) {
+                        acceptable_input = TRUE;
+                    } else if (rc > 0) {
+                        // genau EIN Aufruf pro eingegebener (und bestätigter) Zeile
+                        if ((error = invalid_user_response()) != OK) return error;
+                    } else {
+                        // rc < 0 -> EOF/Fehler beim Lesen
+                        // Beende sauber oder handle entsprechend
+                        return NULL_POINT_ERROR;
                     }
                 }
 
-                if ((error = deck_draw_index(players_turn->hand, player_card, chosen_card)) != OK) return error;
+                if ((error = deck_draw_index(players_turn->hand, player_card, number_input)) != OK) return error;
             } else {
                 if ((error = deck_draw_top(players_turn->hand, player_card)) != OK) return error;
             }
@@ -70,13 +84,15 @@ status player_play_card(const player* players_turn, Card *player_card, const pla
             if ((error = deck_draw_top(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 2:
-            if ((error =  deal_highest_card(players_turn->hand, player_card)) != OK) return error;
+            if ((error = deal_highest_card(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 3:
             if ((error = get_alternating_card(players_turn->hand, player_card)) != OK) return error;
             return OK;
         case 4:
-            if ((error = get_intelligent_card(players_turn->hand, player_card, defender_card, isAttacker)) != OK) return error;
+            if ((error = get_intelligent_card(players_turn->hand, player_card, defender_card, isAttacker)) != OK)
+                return
+                        error;
             return OK;
         default: return USER_INPUT_ERROR;
     }

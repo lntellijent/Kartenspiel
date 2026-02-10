@@ -44,7 +44,7 @@ status round_sequence(size_t round_index);
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status card_played(const wchar_t* player_name, const Card *card, boolean follow_up);
+status card_played(const wchar_t *player_name, const Card *card, boolean follow_up);
 
 /**
  * @brief Dient als Platzhalter für CLI-Nachrichten
@@ -52,7 +52,7 @@ status card_played(const wchar_t* player_name, const Card *card, boolean follow_
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status clash_decided(const wchar_t* player_name);
+status clash_decided(const wchar_t *player_name, const Card* card1, const Card* card2);
 
 /**
  * @brief Dient als Platzhalter für CLI-Nachrichten am Ende des Spiels.
@@ -60,7 +60,7 @@ status clash_decided(const wchar_t* player_name);
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status game_winner(const wchar_t* winning_player_name, size_t winning_player_points);
+status game_winner(const wchar_t *winning_player_name, size_t winning_player_points);
 
 /**
  *
@@ -74,4 +74,16 @@ status game_winner(const wchar_t* winning_player_name, size_t winning_player_poi
  */
 status print_deck(Deck *deck, boolean player_isAttacker, boolean print_indexes);
 
+/**
+ * @brief Parst eine einzelne Ziffer von der Konsole
+ * @param out Die gelesene Ziffer
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - USER_INPUT_ERROR: Es konnte keine einzelne Zahl isoliert werden
+ */
+status read_single_digit(size_t *out);
+
+status read_yes_no(boolean *out);
+
+status read_string(wchar_t out[32]);
 #endif //KARTENSPIEL_CLI_H
