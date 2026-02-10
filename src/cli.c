@@ -49,14 +49,14 @@ status card_played(const wchar_t *player_name, const Card *card, const boolean f
 } // #ToDo
 
 status clash_decided(const wchar_t *player_name, const Card *card1, const Card *card2) {
-    if (wprintf(L" - %ls gewinnt (%hs > %hs)\n", player_name, rank[card1->rank], rank[card2->rank]) < 0) return
-            PRINT_ERROR;
+    if (wprintf(L" - %ls gewinnt (%hs > %hs)\n", player_name, rank[card1->rank], rank[card2->rank]) < 0)
+        return PRINT_ERROR;
     return OK;
 } // #ToDo
 
 
-status game_winner(const wchar_t *winning_player_name, const size_t winning_player_points) {
-    if (wprintf(L"%ls gewinnt mit %llu Punkten!\n", winning_player_name, winning_player_points) < 0) return PRINT_ERROR;
+status game_winner(const wchar_t *winning_player_name, const size_t winning_player_points, const wchar_t *loosing_player_name, const size_t loosing_player_points) {
+    if (wprintf(L"%ls gewinnt mit %llu Punkten! (%ls hatte %llu Punkte)\n", winning_player_name, winning_player_points, loosing_player_name, loosing_player_points) < 0) return PRINT_ERROR;
     return OK;
 } // #ToDo
 

@@ -90,18 +90,15 @@ status game_start() {
         }
     }
 
-    size_t winning_player_index = 0, winning_player_points = 0;
     if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
-    for (size_t player_index = 0; player_index < player_size; player_index++) {
-        const size_t points = consume_and_count_worth(players[player_index].points);
-        if (points == -1) return NULL_POINT_ERROR;
-        if (winning_player_points < points) {
-            winning_player_index = player_index;
-            winning_player_points = points;
-        }
-    }
+    const size_t player0_points = consume_and_count_worth(players[0].points);
+    const size_t player1_points = consume_and_count_worth(players[1].points);
 
-    if ((error = game_winner(players[winning_player_index].name, winning_player_points)) != OK) return error;
+    const size_t winning_player_index = player0_points > player1_points ? 0 : 1;
+    const size_t loosing_player_index = player0_points < player1_points ? 0 : 1;
+    const size_t winning_player_points = player0_points > player1_points ? player0_points : player1_points;
+    const size_t loosing_player_points = player0_points < player1_points ? player0_points : player1_points;
+    if ((error = game_winner(players[winning_player_index].name, winning_player_points, players[loosing_player_index].name, loosing_player_points)) != OK) return error;
 
     // Speicher freigeben
     free(players[0].hand->cards);
@@ -161,8 +158,7 @@ int main() {
             }
             if (error == USER_INPUT_ERROR)
                 invalid_user_response();
-            if (error != OK && error != USER_INPUT_ERROR)
-                return error;
+            else return error;
         }
     }
     return error;
