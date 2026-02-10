@@ -15,7 +15,6 @@ status player_name(player *player) {
     switch (player->strategy) {
         case 0:
             while (1) {
-                wchar_t input[32];
                 ask_name();
                 const status error = read_string(player->name);
                 switch (error) {
@@ -59,7 +58,7 @@ status player_play_card(const player *players_turn, Card *player_card, const pla
             if (players_turn->hand->card_count > 1) {
                 size_t chosen_card = 0;
                 size_t number_input = 0;
-                boolean acceptable_input = FALSE;  // oder: bool acceptable_input = false;
+                boolean acceptable_input = FALSE; // oder: bool acceptable_input = false;
 
                 while (!acceptable_input) {
                     int rc = read_single_digit(&number_input);

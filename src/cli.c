@@ -48,8 +48,9 @@ status card_played(const wchar_t *player_name, const Card *card, const boolean f
     return OK;
 } // #ToDo
 
-status clash_decided(const wchar_t *player_name, const Card* card1, const Card* card2) {
-    if (wprintf(L" - %ls gewinnt (%hs > %hs)\n", player_name, rank[card1->rank], rank[card2->rank]) < 0) return PRINT_ERROR;
+status clash_decided(const wchar_t *player_name, const Card *card1, const Card *card2) {
+    if (wprintf(L" - %ls gewinnt (%hs > %hs)\n", player_name, rank[card1->rank], rank[card2->rank]) < 0) return
+            PRINT_ERROR;
     return OK;
 } // #ToDo
 
@@ -87,7 +88,7 @@ status print_deck(Deck *deck, const boolean player_isAttacker, const boolean pri
 
 status read_single_digit(size_t *out) {
     wchar_t line[32];
-    if (!fgetws(line, (int)(sizeof(line) / sizeof(line[0])), stdin)) return -1;
+    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return -1;
 
     // Zeilenumbruch entfernen (falls vorhanden)
     wchar_t *p = line;
@@ -104,7 +105,7 @@ status read_single_digit(size_t *out) {
 
     // Gültig, wenn exakt 1 Ziffer übrig bleibt
     if (start[0] >= L'0' && start[0] <= L'9' && start[1] == L'\0') {
-        *out = (size_t)(start[0] - L'0');
+        *out = (size_t) (start[0] - L'0');
         return OK;
     }
     return USER_INPUT_ERROR;
@@ -112,7 +113,7 @@ status read_single_digit(size_t *out) {
 
 status read_yes_no(boolean *out) {
     wchar_t line[32];
-    if (!fgetws(line, (int)(sizeof(line) / sizeof(line[0])), stdin)) return -1;
+    if (!fgetws(line, (int) (sizeof(line) / sizeof(line[0])), stdin)) return -1;
 
     // Zeilenumbruch entfernen (falls vorhanden)
     wchar_t *p = line;
@@ -161,8 +162,8 @@ status read_string(wchar_t out[32]) {
     *end = L'\0';
 
     // In out[32] kopieren (trunciert falls nötig)
-    size_t len = (size_t)(end - start);
-    if (len > 31) len = 31;        // Platz für Nullterminator
+    size_t len = (size_t) (end - start);
+    if (len > 31) len = 31; // Platz für Nullterminator
 
     if (len > 0) {
         wmemcpy(out, start, len);

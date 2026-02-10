@@ -55,12 +55,14 @@ status game_start() {
 
         // Angreifer legt eine Karte
         if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card,
-                                      TRUE)) != OK) return error;
+                                      TRUE)) != OK)
+            return error;
         if ((error = card_played(players[attacker_index].name, &attacker_card, FALSE)) != OK) return error;
 
         // Verteidiger legt eine Karte
         if ((error = player_play_card(&players[defender_index], &defender_card, players[attacker_index], attacker_card,
-                                      FALSE)) != OK) return error;
+                                      FALSE)) != OK)
+            return error;
         if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
 
@@ -70,7 +72,8 @@ status game_start() {
             case DEFENDER_WINS:
                 if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK) return error;
+                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK) return
+                        error;
                 // Angreifer-Verteidigerrolle wird getauscht
                 const size_t temp_role_index = attacker_index;
                 attacker_index = defender_index;
@@ -80,7 +83,8 @@ status game_start() {
             case ATTACKER_WINS:
                 if ((error = insert(players[attacker_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[attacker_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[attacker_index].name, &attacker_card, &defender_card)) != OK) return error;
+                if ((error = clash_decided(players[attacker_index].name, &attacker_card, &defender_card)) != OK) return
+                        error;
                 // Angreifer-Verteidigerrolle wird nicht getauscht
                 break;
         }
@@ -146,7 +150,7 @@ int main() {
                 default: return error;
             }
 
-        if((error = wprintf(L"Noch einmal spielen? (j/n)")) < 0) return error;
+        if ((error = wprintf(L"Noch einmal spielen? (j/n)")) < 0) return error;
         boolean input;
         while (1) {
             error = read_yes_no(&input);

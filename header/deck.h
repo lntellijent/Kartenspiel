@@ -115,7 +115,7 @@ status deal_lowest_card(Deck *deck, Card *lowest_card);
  * - OK: Fehlerfrei
  * - NULL_POINT_ERROR: Karte oder Deck ist nicht initialisiert/ist NULL
  */
-status deal_highest_card(Deck *deck,  Card *highest_card);
+status deal_highest_card(Deck *deck, Card *highest_card);
 
 /**
  * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste

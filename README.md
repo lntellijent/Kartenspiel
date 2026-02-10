@@ -46,7 +46,3 @@ Entwickeln Sie das allerneuste, super-interessante, von alle gespielte DHBW-Kart
 - Der Code muss ganz klar von Ihnen erstellt worden sein, die Nutzung von KI-Generatoren ist untersagt. Hilfestellungen von Stackoverflow, anderen Internet-foren, Code-Ergänzungen in der IDE und Gespräche mit Kommilitonen können aber nützlich sein.
 - Projektsprache ist Deutsch. Innerhalb von Funktionen sind Sie frei, aber Funktions- und Datenstrukturnamen sollten zur Sprache in der Spielspezifikation passen.
 - Abgabe erfolgt über Moodle spätestens bis 08.03.2026 20:00 Uhr
-## Planung
-- [ ] CLI sauber/leer halten (Stichwort "gotoxy")
-- [ ] Mehrere Klassen erstellen zur Trennung
-- [ ] structs = Java-Interfaces?
