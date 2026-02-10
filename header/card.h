@@ -34,8 +34,8 @@ typedef enum {
 } winner;
 
 
-static const wchar_t *suits = L"♠♣♥♦";
-static const char *ranks[RANK_COUNT] = {
+static const wchar_t *suit = L"♠♣♥♦";
+static const char *rank[RANK_COUNT] = {
     "_", "_", "2", "3", "4", "5", "6", "7", "8", "9", "10", "B", "D", "K", "A"
 };
 
@@ -48,5 +48,5 @@ static const char *ranks[RANK_COUNT] = {
  * - ATTACKER_WINS: Angreifer gewinnt
  * - TIE: Gleichstand, Angreifer gewinnt
  */
-winner card_clash(const Card *attacker_card, const Card *defender_card);
+winner card_clash(Card attacker_card, Card defender_card);
 #endif
