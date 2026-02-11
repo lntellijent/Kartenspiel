@@ -16,7 +16,8 @@ status player_name(player *player) {
         case 0:
             while (1) {
                 ask_name();
-                const status error = read_string(player->name);
+                wbuf wb = {.ptr = player->name, .cap = sizeof(player->name) / sizeof(player->name[0])};
+                const status error = read_with(read_string, &wb);
                 switch (error) {
                     case OK:
                         break;
@@ -61,7 +62,7 @@ status player_play_card(const player *players_turn, Card *player_card, const pla
                 boolean acceptable_input = FALSE; // oder: bool acceptable_input = false;
 
                 while (!acceptable_input) {
-                    int rc = read_single_digit(&number_input);
+                    int rc = read_with(read_single_digit, &number_input);
                     if (rc == 0) {
                         acceptable_input = TRUE;
                     } else if (rc > 0) {
