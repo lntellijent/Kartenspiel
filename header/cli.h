@@ -4,9 +4,17 @@
 
 #ifndef KARTENSPIEL_CLI_H
 #define KARTENSPIEL_CLI_H
+#define INPUT_LENGTH 32
 #include "card.h"
 #include "deck.h"
 #include "main.h"
+
+typedef status (*reader_fn)(const wchar_t *input, void *output);
+
+typedef struct {
+    wchar_t *ptr;
+    size_t cap;
+} wbuf;
 
 /**
  * @brief printed verschönerte CLI-Elemente, um den Namen zu erfragen.
@@ -60,7 +68,8 @@ status clash_decided(const wchar_t *player_name, const Card *card1, const Card *
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status game_winner(const wchar_t *winning_player_name, size_t winning_player_points, const wchar_t *loosing_player_name, size_t loosing_player_points);
+status game_winner(const wchar_t *winning_player_name, size_t winning_player_points, const wchar_t *loosing_player_name,
+                   size_t loosing_player_points);
 
 /**
  *
@@ -76,28 +85,25 @@ status print_deck(Deck *deck, boolean player_isAttacker, boolean print_indexes);
 
 /**
  * @brief Parst eine einzelne Ziffer von der Konsole
- * @param out Die gelesene Ziffer
+ * @param input Der getrimmte User-Input
+ * @param out_void Die gelesene Ziffer
  * @return Statuscode:
  * - OK: Fehlerfrei
  * - USER_INPUT_ERROR: Es konnte keine einzelne Zahl isoliert werden
  */
-status read_single_digit(size_t *out);
+status read_single_digit(const wchar_t *input, void *out_void);
 
 /**
  * @brief Parst vordefinierte Buchstaben für eine Ja/Nein-Entscheidung
- * @param out Enthält die gelesene boolesche Antwort als Boolean
+ * @param input Der getrimmte User-Input
+ * @param out_void Die gelesene Ja/Nein Entscheidung als Boolean
  * @return Statuscode:
  * - OK: Fehlerfrei
  * - USER_INPUT_ERROR: Es konnte keine Ja/Nein-Entscheidung isoliert werden
  */
-status read_yes_no(boolean *out);
+status read_yes_no(const wchar_t *input, void *out_void);
 
-/**
- *
- * @param out Enthält den String, auf 31 Zeichen begrenzt.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - USER_INPUT_ERROR: Ungültige Zeichen eingegeben
- */
-status read_string(wchar_t out[32]);
+status read_string(const wchar_t *input, void *out_void);
+
+status read_with(reader_fn reader, void *output);
 #endif //KARTENSPIEL_CLI_H

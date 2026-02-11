@@ -72,8 +72,9 @@ status game_start() {
             case DEFENDER_WINS:
                 if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK) return
-                        error;
+                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK)
+                    return
+                            error;
                 // Angreifer-Verteidigerrolle wird getauscht
                 const size_t temp_role_index = attacker_index;
                 attacker_index = defender_index;
@@ -83,8 +84,9 @@ status game_start() {
             case ATTACKER_WINS:
                 if ((error = insert(players[attacker_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[attacker_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[attacker_index].name, &attacker_card, &defender_card)) != OK) return
-                        error;
+                if ((error = clash_decided(players[attacker_index].name, &attacker_card, &defender_card)) != OK)
+                    return
+                            error;
                 // Angreifer-Verteidigerrolle wird nicht getauscht
                 break;
         }
@@ -98,7 +100,9 @@ status game_start() {
     const size_t loosing_player_index = player0_points < player1_points ? 0 : 1;
     const size_t winning_player_points = player0_points > player1_points ? player0_points : player1_points;
     const size_t loosing_player_points = player0_points < player1_points ? player0_points : player1_points;
-    if ((error = game_winner(players[winning_player_index].name, winning_player_points, players[loosing_player_index].name, loosing_player_points)) != OK) return error;
+    if ((error = game_winner(players[winning_player_index].name, winning_player_points,
+                             players[loosing_player_index].name, loosing_player_points)) != OK)
+        return error;
 
     // Speicher freigeben
     free(players[0].hand->cards);
@@ -150,7 +154,7 @@ int main() {
         if ((error = wprintf(L"Noch einmal spielen? (j/n): ")) < 0) return error;
         boolean input;
         while (1) {
-            error = read_yes_no(&input);
+            error = read_with(read_yes_no, &input);
             if (error == OK) {
                 if (!input)
                     repeat = FALSE;
