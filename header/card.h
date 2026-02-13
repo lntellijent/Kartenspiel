@@ -39,14 +39,5 @@ static const char *rank[RANK_COUNT] = {
     "_", "_", "2", "3", "4", "5", "6", "7", "8", "9", "10", "B", "D", "K", "A"
 };
 
-/**
- * @brief Vergleicht beide Karten gemäß den Spielregeln und kürt eine dementsprechend zum Gewinner
- * @param attacker_card Angreiferkarte
- * @param defender_card Verteidigerkarte
- * @return Status:
- * - DEFENDER_WINS: Verteidiger gewinnt
- * - ATTACKER_WINS: Angreifer gewinnt
- * - TIE: Gleichstand, Angreifer gewinnt
- */
-winner card_clash(Card attacker_card, Card defender_card);
+
 #endif
