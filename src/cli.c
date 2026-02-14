@@ -4,11 +4,11 @@
 
 #include <stdio.h>
 #include <wchar.h>
-#include <wctype.h>
 #include <stdlib.h>
 #include <ctype.h>
 
 #include "../header/cli.h"
+#include "../header/card.h"
 
 
 status ask_name() {
@@ -43,13 +43,16 @@ status round_sequence(const size_t round_index) {
 status card_played(const wchar_t *player_name, const Card *card, const boolean follow_up) {
     if (follow_up)
         if (wprintf(L", ") < 0) return PRINT_ERROR;
-    if (wprintf(L"%ls legt %hs%.1ls", player_name, rank[card->rank], &suit[card->suit]) < 0)
+    status error;
+    wchar_t card_string[3];
+    if ((error = print_card(*card, card_string)) != OK) return error;
+    if (wprintf(L"%ls legt %ls", player_name, card_string) < 0)
         return PRINT_ERROR;
     return OK;
 } // #ToDo
 
-status clash_decided(const wchar_t *player_name, const Card *card1, const Card *card2) {
-    if (wprintf(L" - %ls gewinnt (%hs > %hs)\n", player_name, rank[card1->rank], rank[card2->rank]) < 0)
+status clash_decided(const wchar_t *player_name, const Card *greater_card, const Card *lower_card) {
+    if (wprintf(L" - %ls gewinnt (%ls > %ls)\n", player_name, rank[greater_card->rank], rank[lower_card->rank]) < 0)
         return PRINT_ERROR;
     return OK;
 } // #ToDo
@@ -73,7 +76,7 @@ status print_deck(Deck *deck, const boolean player_isAttacker, const boolean pri
         if (wprintf(L"%5hs", "") < 0) return PRINT_ERROR;
 
     for (size_t i = 0; i < deck->card_count; i++)
-        if (wprintf(L"%hs%2hs%.1ls%hs",
+        if (wprintf(L"%hs%2ls%.1ls%hs",
                     i != 0 ? " " : "",
                     rank[deck->cards[i].rank],
                     &suit[deck->cards[i].suit],
@@ -87,13 +90,6 @@ status print_deck(Deck *deck, const boolean player_isAttacker, const boolean pri
         if (wprintf(L"\n") < 0) return PRINT_ERROR;
     }
     return OK;
-}
-
-static void discard_line(void) {
-    wint_t wc;
-    // Rest der Zeile verwerfen (Wide-Variante)
-    while ((wc = getwchar()) != L'\n' && wc != WEOF) {
-    }
 }
 
 status read_single_digit(const wchar_t *input, void *out_void) {

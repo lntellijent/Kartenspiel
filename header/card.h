@@ -6,6 +6,7 @@
 #define CARD_H
 
 #include <wchar.h>
+#include "../header/main.h"
 
 typedef enum {
     SUIT_SPADES, // ♠
@@ -35,18 +36,11 @@ typedef enum {
 
 
 static const wchar_t *suit = L"♠♣♥♦";
-static const char *rank[RANK_COUNT] = {
-    "_", "_", "2", "3", "4", "5", "6", "7", "8", "9", "10", "B", "D", "K", "A"
+static const wchar_t *rank[RANK_COUNT] = {
+    L"_", L"_", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", L"10", L"B", L"D", L"K", L"A"
 };
 
-/**
- * @brief Vergleicht beide Karten gemäß den Spielregeln und kürt eine dementsprechend zum Gewinner
- * @param attacker_card Angreiferkarte
- * @param defender_card Verteidigerkarte
- * @return Status:
- * - DEFENDER_WINS: Verteidiger gewinnt
- * - ATTACKER_WINS: Angreifer gewinnt
- * - TIE: Gleichstand, Angreifer gewinnt
- */
-winner card_clash(Card attacker_card, Card defender_card);
+status print_card(Card card, wchar_t *s);
+
+
 #endif

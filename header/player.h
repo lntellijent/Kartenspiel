@@ -7,10 +7,12 @@
 
 #include "deck.h"
 
+typedef status (*card_strategy_chooser)(Deck *deck, Card *card, Card *card_to_beat, boolean isAttacker);
+
 typedef struct {
     Deck *hand;
     Deck *points;
-    int strategy;
+    card_strategy_chooser strategy;
     wchar_t name[32];
 } player;
 
@@ -22,48 +24,6 @@ typedef struct {
  */
 status player_name(player *player);
 
-/**
- * @brief Spielt eine Karte
- *
- * (Unabhängig davon ob KI-Gegner oder menschlicher Spieler)
- * @param players_turn Der Spieler, welcher eine Karte spielen soll
- * @param player_card Entält die Karte die gespielt wird
- * @param defender Der Spieler, der Verteidigt, falls man Angreifer ist
- * @param defender_card Die Karte des Gegners, die es zu schlagen gilt
- * @param isAttacker Teilt mit, ob der Spieler an der Reihe angreift oder abwehrt.
- * @return Fehler-/Statuscodes:
- * - OK: Fehlerfrei
- * - NULLPOINT_ERROR: Deck ist leer oder =NULL
- * - USER_INPUT_ERROR: invalide Strategie ausgewählt
- * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
- * @note Strategien:
- * 1. Zufall
- * 2. niedrigste zuerst
- * 3. höchste zuerst
- * 4. Intelligent
- */
-status player_play_card(const player *players_turn, Card *player_card, player defender, Card defender_card,
-                        boolean isAttacker);
+void player_free(const player *player);
 
-/**
- * @brief teilt eine Karte aus.
- * @param deck Das Deck aus welchem die Karte gezogen werden soll.
- * @param alternating_card enthält die Karte, die gezogen wurde.
- * @return Statuscode:
- * - OK: Fehlerfrei
- * - NULL_POINT_ERROR: Deck oder Karte nicht initialisiert oder gleich NULL
- */
-status get_alternating_card(Deck *deck, Card *alternating_card);
-
-/**
- * @brief teilt eine Karte aus.
- * @param deck Das Deck aus welchem die Karte gezogen werden soll.
- * @param intelligent_card enthält die Karte, die gezogen wurde.
- * @param card_to_beat Die Karte des Gegners, die es zu schlagen gilt
- * @param isAttacker Teilt mit, ob der Spieler an der Reihe angreift oder abwehrt.
- * @return statuscode:
- * - OK: Fehlerfrei
- *
- */
-status get_intelligent_card(Deck *deck, Card *intelligent_card, Card card_to_beat, boolean isAttacker);
 #endif

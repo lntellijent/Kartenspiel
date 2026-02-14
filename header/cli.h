@@ -60,7 +60,7 @@ status card_played(const wchar_t *player_name, const Card *card, boolean follow_
  * - OK: Fehlerfrei
  * - PRINT_ERROR: Elemente konnten nicht dargestellt werden
  */
-status clash_decided(const wchar_t *player_name, const Card *card1, const Card *card2);
+status clash_decided(const wchar_t *player_name, const Card *greater_card, const Card *lower_card);
 
 /**
  * @brief Dient als Platzhalter für CLI-Nachrichten am Ende des Spiels.

@@ -4,11 +4,9 @@
 
 #include "../header/card.h"
 
-winner card_clash(const Card attacker_card, const Card defender_card) {
-    const int attacker_card_worth = attacker_card.rank;
-    const int defender_card_worth = defender_card.rank;
-
-    if (defender_card_worth > attacker_card_worth) return DEFENDER_WINS;
-    if (defender_card_worth < attacker_card_worth) return ATTACKER_WINS;
-    return TIE;
+status print_card(const Card card, wchar_t *s) {
+    s[0] = rank[card.rank][0];
+    s[1] = suit[card.suit];
+    s[2] = L'\0';
+    return OK;
 }

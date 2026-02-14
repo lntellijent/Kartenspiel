@@ -6,6 +6,8 @@
 
 #include "../header/player.h"
 #include "../header/cli.h"
+#include "../header/rules.h"
+#include "../header/strategy.h"
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
@@ -21,8 +23,14 @@ status game_start() {
     // Spieler(-Decks) initialisieren
     const size_t hand_size = 10;
     player players[2] = {
-        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 0}, // Spieler
-        {.hand = create_empty_deck(hand_size), .points = create_empty_deck(hand_size), .strategy = 4} // Gegner
+        {.hand = create_empty_deck(hand_size),
+            .points = create_empty_deck(hand_size),
+            .strategy = get_humanoid_card}, // Spieler
+        {
+            .hand = create_empty_deck(hand_size),
+            .points = create_empty_deck(hand_size),
+            .strategy = get_alternating_card
+        } // Gegner
     };
 
     // Initialisierung fehlgeschlagen
@@ -45,7 +53,6 @@ status game_start() {
     Card attacker_card, defender_card;
     size_t attacker_index = 1, defender_index = 0;
 
-    const size_t player_size = sizeof(players) / sizeof(players[0]);
     size_t round_index = 0;
     while (!(is_empty(players[0].hand) && is_empty(players[1].hand))) {
         round_index++;
@@ -54,14 +61,12 @@ status game_start() {
         if ((error = round_sequence(round_index)) != OK) return error;
 
         // Angreifer legt eine Karte
-        if ((error = player_play_card(&players[attacker_index], &attacker_card, players[defender_index], attacker_card,
-                                      TRUE)) != OK)
+        if ((error = card_play(players[attacker_index].strategy, players[attacker_index].hand, &attacker_card, NULL, TRUE)) != OK)
             return error;
         if ((error = card_played(players[attacker_index].name, &attacker_card, FALSE)) != OK) return error;
 
         // Verteidiger legt eine Karte
-        if ((error = player_play_card(&players[defender_index], &defender_card, players[attacker_index], attacker_card,
-                                      FALSE)) != OK)
+        if ((error = card_play(players[defender_index].strategy, players[defender_index].hand, &defender_card, &attacker_card, FALSE)) != OK)
             return error;
         if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
@@ -72,7 +77,7 @@ status game_start() {
             case DEFENDER_WINS:
                 if ((error = insert(players[defender_index].points, &attacker_card)) != OK) return error;
                 if ((error = insert(players[defender_index].points, &defender_card)) != OK) return error;
-                if ((error = clash_decided(players[defender_index].name, &attacker_card, &defender_card)) != OK)
+                if ((error = clash_decided(players[defender_index].name, &defender_card, &attacker_card)) != OK)
                     return
                             error;
                 // Angreifer-Verteidigerrolle wird getauscht
@@ -105,17 +110,9 @@ status game_start() {
         return error;
 
     // Speicher freigeben
-    free(players[0].hand->cards);
-    free(players[0].hand);
-    free(players[0].points->cards);
-    free(players[0].points);
-    free(players[1].hand->cards);
-    free(players[1].hand);
-    free(players[1].points->cards);
-    free(players[1].points);
-    free(main_deck->cards);
-    free(main_deck);
-
+    player_free(&players[0]);
+    player_free(&players[1]);
+    deck_free(main_deck);
     return OK;
 }
 
