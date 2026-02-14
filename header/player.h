@@ -24,4 +24,6 @@ typedef struct {
  */
 status player_name(player *player);
 
+void player_free(const player *player);
+
 #endif

@@ -6,6 +6,7 @@
 #define CARD_H
 
 #include <wchar.h>
+#include "../header/main.h"
 
 typedef enum {
     SUIT_SPADES, // ♠
@@ -35,9 +36,11 @@ typedef enum {
 
 
 static const wchar_t *suit = L"♠♣♥♦";
-static const char *rank[RANK_COUNT] = {
-    "_", "_", "2", "3", "4", "5", "6", "7", "8", "9", "10", "B", "D", "K", "A"
+static const wchar_t *rank[RANK_COUNT] = {
+    L"_", L"_", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", L"10", L"B", L"D", L"K", L"A"
 };
+
+status print_card(Card card, wchar_t *s);
 
 
 #endif

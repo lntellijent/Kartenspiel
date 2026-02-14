@@ -43,3 +43,8 @@ status player_name(player *player) {
     }
     return OK;
 }
+
+void player_free(const player *player) {
+    deck_free(player->hand);
+    deck_free(player->points);
+}

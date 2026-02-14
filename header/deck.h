@@ -14,6 +14,8 @@ typedef struct {
     size_t capacity;
 } Deck;
 
+void deck_free(Deck *deck);
+
 /**
  * @brief erzeugt einen Kartenstapel mit dem weitergearbeitet werden kann
  * @return Ein sortiertes Standard-Deck, falls ein Fehler auftritt: NULL
