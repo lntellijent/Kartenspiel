@@ -31,13 +31,13 @@ status game_start() {
     if ((error = shuffle(main_deck)) != OK) return error;
 
     // Spieler(-Decks) initialisieren
+    const size_t hand_size = 10;
     player players[2] = {
         {
             .hand = create_empty_deck(HAND_SIZE),
             .points = create_empty_deck(HAND_SIZE),
-            .strategy = PLAYER_1_STRATEGY
-        }, // Spieler
-        {
+            .strategy = PLAYER_1_STRATEGY // Spieler
+        }, {
             .hand = create_empty_deck(HAND_SIZE),
             .points = create_empty_deck(HAND_SIZE),
             .strategy = PLAYER_2_STRATEGY // Gegner
