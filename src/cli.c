@@ -19,26 +19,27 @@ status ask_name() {
 status invalid_user_response() {
     if (wprintf(L"Diese Eingabe ist ungültig, bitte probiere es erneut: ") < 0) return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 status start_sequence() {
-    const char *banner =
-            ".---------.\t.---------.\t.---------.\t.---------.\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "|         |\t|         |\t|         |\t|         |\n"
-            "'---------'\t'---------'\t'---------'\t'---------'\n"
-            "                      Das Kartenspiel             \n";
-    if (wprintf(L"\n%hs\n\n", banner) < 0) return PRINT_ERROR;
+    const wchar_t *banner =
+            L".---------.\t.---------.\t.---------.\t.---------.\n"
+            L"| A   ♠   |\t| A   ♥   |\t| A   ♦   |\t| A   ♣   |\n"
+            L"|         |\t|         |\t|         |\t|         |\n"
+            L"|   PIK   |\t|  HERZ   |\t|  KARO   |\t|  KREUZ  |\n"
+            L"|         |\t|         |\t|         |\t|         |\n"
+            L"|   ♠   A |\t|   ♥   A |\t|   ♦   A |\t|   ♣   A |\n"
+            L"'---------'\t'---------'\t'---------'\t'---------'\n"
+            L"                    Das DHBW Kartenspiel              \n";
+    if (wprintf(L"\n%ls\n\n", banner) < 0) return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 status round_sequence(const size_t round_index) {
     if (wprintf(L"\n%hs[Zug %llu]%hs\n\n", "------------------------- ", round_index, " -------------------------") < 0)
         return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 status card_played(const wchar_t *player_name, const Card *card, const boolean follow_up) {
     if (follow_up)
@@ -49,13 +50,13 @@ status card_played(const wchar_t *player_name, const Card *card, const boolean f
     if (wprintf(L"%ls legt %ls", player_name, card_string) < 0)
         return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 status clash_decided(const wchar_t *player_name, const Card *greater_card, const Card *lower_card) {
     if (wprintf(L" - %ls gewinnt (%ls > %ls)\n", player_name, rank[greater_card->rank], rank[lower_card->rank]) < 0)
         return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 
 status game_winner(const wchar_t *winning_player_name, const size_t winning_player_points,
@@ -64,7 +65,7 @@ status game_winner(const wchar_t *winning_player_name, const size_t winning_play
                 loosing_player_name, loosing_player_points) < 0)
         return PRINT_ERROR;
     return OK;
-} // #ToDo
+}
 
 status print_deck(Deck *deck, const boolean player_isAttacker, const boolean print_indexes) {
     if (!deck || deck->card_count <= 0) return NULL_POINT_ERROR;
@@ -131,7 +132,7 @@ status read_string(const wchar_t *input, void *out_void) {
     }
     wb->ptr[i] = L'\0';
 
-    // Wenn abgeschnitten wurde, ist das u. U. trotzdem OK – je nach Policy.
+    // Wenn abgeschnitten wurde, ist das u. U. trotzdem OK – je nach Policy.
     // Falls „zu lang“ als Fehler gelten soll:
     if (input[i] != L'\0') return USER_INPUT_ERROR;
 
@@ -139,13 +140,13 @@ status read_string(const wchar_t *input, void *out_void) {
 }
 
 status read_with(const reader_fn reader, void *output) {
-    // Puffergröße = INPUT_LENGTH (Nutzlänge) + 1 (Terminierung)
-    wchar_t line[INPUT_LENGTH + 1];
+    // Puffergröße = MAX_INPUT_LENGTH (Nutzlänge) + 1 (Terminierung)
+    wchar_t line[MAX_INPUT_LENGTH + 1];
     if (!fgetws(line, (int) (sizeof line / sizeof line[0]), stdin))
         return USER_INPUT_ERROR;
 
     // Newline entfernen, falls vorhanden
-    for (size_t i = 0; i < INPUT_LENGTH + 1; ++i) {
+    for (size_t i = 0; i < MAX_INPUT_LENGTH + 1; ++i) {
         if (line[i] == L'\n') {
             line[i] = L'\0';
             break;
@@ -155,7 +156,7 @@ status read_with(const reader_fn reader, void *output) {
 
     // Wenn kein '\n' gefunden wurde und Puffer voll ist, Rest verwerfen
     const size_t len = wcslen(line);
-    if (len == INPUT_LENGTH) {
+    if (len == MAX_INPUT_LENGTH) {
         // Es könnte abgeschnitten sein → restliche Zeile verwerfen
         wint_t wc;
         do {

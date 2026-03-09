@@ -4,7 +4,7 @@
 
 #ifndef KARTENSPIEL_CLI_H
 #define KARTENSPIEL_CLI_H
-#define INPUT_LENGTH 32
+#define MAX_INPUT_LENGTH 32
 #include "card.h"
 #include "deck.h"
 #include "main.h"
@@ -103,7 +103,22 @@ status read_single_digit(const wchar_t *input, void *out_void);
  */
 status read_yes_no(const wchar_t *input, void *out_void);
 
+/**
+ * @brief Parst einen String
+ * @param input Der RAW-Input
+ * @param out_void Der String
+ * @return Statuscode:
+ * - OK: Fehlerfrei
+ * - USER_INPUT_ERROR: Stringlänge größer als der Buffer
+ */
 status read_string(const wchar_t *input, void *out_void);
 
+/**
+ * @brief Wrapperfunktion für das spezifische Auslesen einer CLI-Eingabe
+ * @param reader Die Art, was gelesen werden soll (Funktionszeiger)
+ * @param output Der Output
+ * - OK: Fehlerfrei
+ * - USER_INPUT_ERROR: Der Reader kann keine korrekte Eingabe zurückgeben
+ */
 status read_with(reader_fn reader, void *output);
 #endif //KARTENSPIEL_CLI_H

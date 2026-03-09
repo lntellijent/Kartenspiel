@@ -14,7 +14,7 @@
  * @return Status:
  * - DEFENDER_WINS: Verteidiger gewinnt
  * - ATTACKER_WINS: Angreifer gewinnt
- * - TIE: Gleichstand, Angreifer gewinnt
+ * - TIE: Gleichstand
  */
 winner card_clash(Card attacker_card, Card defender_card);
 

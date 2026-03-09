@@ -5,11 +5,13 @@
 #ifndef KARTENSPIEL_MAIN_H
 #define KARTENSPIEL_MAIN_H
 
+// Boolesche Werte
 typedef enum {
     FALSE,
     TRUE
-} boolean; // Boolesche Werte
+} boolean;
 
+// Status-/Fehlercodes
 typedef enum {
     OK, // Erfolgreich bzw ohne Fehler
     USER_INPUT_ERROR, // falsche Benutzereingabe
