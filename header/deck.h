@@ -14,10 +14,14 @@ typedef struct {
     size_t capacity;
 } Deck;
 
+/**
+ * @brief Gibt den Speicher eines Kartendecks frei
+ * @param deck Das Deckobjekt, dessen Speicher freigegeben werden soll
+ */
 void deck_free(Deck *deck);
 
 /**
- * @brief erzeugt einen Kartenstapel mit dem weitergearbeitet werden kann
+ * @brief erzeugt einen standardisierten und sortierten Kartenstapel
  * @return Ein sortiertes Standard-Deck, falls ein Fehler auftritt: NULL
  */
 Deck *create_standard_deck(void);
@@ -25,7 +29,7 @@ Deck *create_standard_deck(void);
 /**
  * @brief Erstellt ein gültiges, aber leeres Deck
  * @param initial_capacity Die Anzahl der freien Plätze, ohne, dass es erweitert werden muss
- * @return das leere Deck, falls ein Fehler auftritt: NULL
+ * @return Das leere Deck, falls ein Fehler auftritt: NULL
  */
 Deck *create_empty_deck(size_t initial_capacity);
 
@@ -59,7 +63,7 @@ status deck_draw_top(Deck *deck, Card *output_card);
  * @brief Zieht eine Karte aus einer bestimmten Stelle
  * @param deck Das Deck aus welchem gezogen werden soll
  * @param output_card Die Karte die gezogen wird
- * @param card_index Der Index an welchem die Karte abliegt
+ * @param card_index Der Index an welchem die Karte liegt
  * @return Statuscode:
  * - OK: Erfolgreich
  * - NULL_POINT_ERROR: leeres oder nicht initialisiertes Deck
@@ -100,7 +104,7 @@ size_t consume_and_count_worth(Deck *deck);
 status card_deal(Deck *source_deck, Deck *destination_deck, size_t card_count);
 
 /**
- * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @brief Zieht eine bestimmte Karte aus dem Deck.
  * @param deck Das Deck aus welchem die Karte genommen wird
  * @param lowest_card die Karte selbst; hier die niedrigste Karte des Decks
  * @return statuscodes:
@@ -110,7 +114,7 @@ status card_deal(Deck *source_deck, Deck *destination_deck, size_t card_count);
 status deal_lowest_card(Deck *deck, Card *lowest_card);
 
 /**
- * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @brief Zieht eine bestimmte Karte aus dem Deck.
  * @param deck Das Deck aus welchem die Karte genommen wird
  * @param highest_card die Karte selbst; hier die höchste Karte des Decks
  * @return statuscodes:
@@ -120,7 +124,7 @@ status deal_lowest_card(Deck *deck, Card *lowest_card);
 status deal_highest_card(Deck *deck, Card *highest_card);
 
 /**
- * @brief Zieht eine bestimmte Karte aus dem Deck. Hier: Die niedrigste
+ * @brief Zieht eine bestimmte Karte aus dem Deck.
  * @param deck Das Deck aus welchem die Karte genommen wird
  * @param card die Karte selbst; hier die Karte des Decks am übergebenen Index
  * @param index der Index der Karte, die gezogen werden soll

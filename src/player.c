@@ -10,7 +10,6 @@
 #include "../header/cli.h"
 #include "../header/strategy.h"
 
-#define SHOW_OPPONENT_CARDS FALSE
 
 status player_name(player *player) {
     if (player->strategy == get_humanoid_card) {

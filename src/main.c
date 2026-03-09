@@ -11,26 +11,31 @@
 
 #define DEFAULT_GAME_REPEAT_SETTING FALSE
 #define DEFAULT_GAME_REPEAT_ON_ENTER_SETTING TRUE
+#define HAND_SIZE 10
 
 //C-Level C11
 
 status game_start() {
+
+    /*
+     *              Initialisiserung
+     */
+
     status error;
     Deck *main_deck = create_standard_deck();
     // Initialisiserung fehlgeschlagen
     if ((error = shuffle(main_deck)) != OK) return error;
 
     // Spieler(-Decks) initialisieren
-    const size_t hand_size = 10;
     player players[2] = {
-        {.hand = create_empty_deck(hand_size),
-            .points = create_empty_deck(hand_size),
+        {.hand = create_empty_deck(HAND_SIZE),
+            .points = create_empty_deck(HAND_SIZE),
             .strategy = get_humanoid_card}, // Spieler
         {
-            .hand = create_empty_deck(hand_size),
-            .points = create_empty_deck(hand_size),
-            .strategy = get_alternating_card
-        } // Gegner
+            .hand = create_empty_deck(HAND_SIZE),
+            .points = create_empty_deck(HAND_SIZE),
+            .strategy = get_alternating_card // Gegner
+        }
     };
 
     // Initialisierung fehlgeschlagen
@@ -43,11 +48,14 @@ status game_start() {
 
     // Austeilen der Karten
     for (size_t player_index = 0; player_index < sizeof(players) / sizeof(players[0]); player_index++)
-        if ((error = card_deal(main_deck, players[player_index].hand, hand_size)) != OK) return error;
+        if ((error = card_deal(main_deck, players[player_index].hand, HAND_SIZE)) != OK) return error;
 
     if (is_empty(players[0].hand) || is_empty(players[1].hand)) return NULL_POINT_ERROR;
 
-    // Start-Sequenz des Spiels
+    /*
+     *                  Spielstart
+     */
+
     if ((error = start_sequence()) != OK) return error;
 
     Card attacker_card, defender_card;
@@ -71,7 +79,10 @@ status game_start() {
         if ((error = card_played(players[defender_index].name, &defender_card, defender_index)) != OK) return error;
 
 
-        // Stich wird entschieden
+        /*
+         *                  Stichlogik
+         */
+
         switch (card_clash(attacker_card, defender_card)) {
             default: return NULL_POINT_ERROR;
             case DEFENDER_WINS:
@@ -96,6 +107,10 @@ status game_start() {
                 break;
         }
     }
+
+    /*
+     *                  Speicherfreigabe
+     */
 
     if (wprintf(L"\n\n") < 0) return PRINT_ERROR;
     const size_t player0_points = consume_and_count_worth(players[0].points);

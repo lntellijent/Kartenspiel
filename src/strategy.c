@@ -10,8 +10,8 @@ status card_play(const card_strategy_chooser csc, Deck *deck, Card *card, Card *
     return csc(deck, card, card_to_beat, isAttacker);
 }
 
-status get_card(Deck *deck, Card *highest_card, Card *card_to_beat, boolean isAttacker) {
-    return deck_draw_top(deck, highest_card);
+status get_card(Deck *deck, Card *card, Card *card_to_beat, boolean isAttacker) {
+    return deck_draw_top(deck, card);
 }
 
 status get_Highest_card(Deck *deck, Card *highest_card, Card *card_to_beat, boolean isAttacker) {
@@ -50,7 +50,7 @@ status get_intelligent_card(Deck *deck, Card *intelligent_card, const Card *card
     for (size_t card_index = 0; card_index < deck->card_count; card_index++) {
         if (deck->cards[card_index].rank > card_to_beat->rank && // Karte muss höher als die gegnerische sein...
             deck->cards[intelligent_card_index].rank > deck->cards[card_index].rank)
-            // ...aber niedriger als die bereits gefundene Karte, um so minimal gewinnen wie möglich
+            // ...aber niedriger als die bereits gefundene Karte, um so minimal zu gewinnen wie möglich
             intelligent_card_index = (int) card_index;
     }
 
@@ -78,7 +78,6 @@ status get_humanoid_card(Deck *deck, Card *humanoid_card, Card *card_to_beat, co
             if (error == OK) {
                 acceptable_input = TRUE;
             } else if (error == USER_INPUT_ERROR) {
-                // genau EIN Aufruf pro eingegebener (und bestätigter) Zeile
                 if ((error = invalid_user_response()) != OK) return error;
             } else {
                 return error;
