@@ -8,6 +8,9 @@
 #include <ctype.h>
 
 #include "../header/cli.h"
+
+#include <wctype.h>
+
 #include "../header/card.h"
 
 
@@ -31,7 +34,7 @@ status start_sequence() {
             L"|   ♠   A |\t|   ♥   A |\t|   ♦   A |\t|   ♣   A |\n"
             L"'---------'\t'---------'\t'---------'\t'---------'\n"
             L"                    Das DHBW Kartenspiel              \n";
-    if (wprintf(L"\n%ls\n\n", banner) < 0) return PRINT_ERROR;
+    if (wprintf(L"\n%p\n\n", banner) < 0) return PRINT_ERROR;
     return OK;
 }
 
@@ -47,13 +50,13 @@ status card_played(const wchar_t *player_name, const Card *card, const boolean f
     status error;
     wchar_t card_string[3];
     if ((error = print_card(*card, card_string)) != OK) return error;
-    if (wprintf(L"%ls legt %ls", player_name, card_string) < 0)
+    if (wprintf(L"%p legt %p", player_name, card_string) < 0)
         return PRINT_ERROR;
     return OK;
 }
 
 status clash_decided(const wchar_t *player_name, const Card *greater_card, const Card *lower_card) {
-    if (wprintf(L" - %ls gewinnt (%ls > %ls)\n", player_name, rank[greater_card->rank], rank[lower_card->rank]) < 0)
+    if (wprintf(L" - %p gewinnt (%p > %p)\n", player_name, rank[greater_card->rank], rank[lower_card->rank]) < 0)
         return PRINT_ERROR;
     return OK;
 }
@@ -61,7 +64,7 @@ status clash_decided(const wchar_t *player_name, const Card *greater_card, const
 
 status game_winner(const wchar_t *winning_player_name, const size_t winning_player_points,
                    const wchar_t *loosing_player_name, const size_t loosing_player_points) {
-    if (wprintf(L"%ls gewinnt mit %llu Punkten! (%ls hatte %llu Punkte)\n", winning_player_name, winning_player_points,
+    if (wprintf(L"%p gewinnt mit %llu Punkten! (%p hatte %llu Punkte)\n", winning_player_name, winning_player_points,
                 loosing_player_name, loosing_player_points) < 0)
         return PRINT_ERROR;
     return OK;
